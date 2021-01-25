@@ -80,7 +80,7 @@ def setup_environment(new_region: Path) -> bool:
         print(f"{new_region.resolve()} already exists, this may cause problems!")
         proceed = input("Do you want to preceed regardless? [y/N] ")
 
-        return proceed.starts_with("y")
+        return proceed.startswith("y")
     else:
         new_region.mkdir()
         print(f"Saving newly generated region files to {new_region.resolve()}")
@@ -109,7 +109,7 @@ def main() -> None:
     world_region = Path("world/region")
     num_processes = args.jobs
 
-    print("Replacing", to_replace, "in all region files.")
+    print(f"Replacing {to_replace} in all region files.")
     sep()
 
     if not world_region.exists():
@@ -136,8 +136,8 @@ def main() -> None:
         )
         print(f"Done!\nRemoved {count} instances of tags: {to_replace}")
 
-    print("Processed {n_to_process} files")
-    print("You can now replace {world_region} with {new_region}")
+    print(f"Processed {n_to_process} files")
+    print(f"You can now replace {world_region} with {new_region}")
 
 
 if __name__ == "__main__":
