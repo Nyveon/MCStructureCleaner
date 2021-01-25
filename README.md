@@ -9,20 +9,31 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 # Usage
 
 1. Install the requirements: [Python 3.x](https://www.python.org/) and [Matcool's Anvil Parser](https://github.com/matcool/anvil-parser).
-2. Place main.py in a folder with your world folder.
+2. Place main.py in the same directory as your world folder.
 3. Run main.py, and instruct it as to which structure tag you wish to remove. I recommend using [NBTExplorer](https://github.com/jaquadro/NBTExplorer) to find the name.
+   - -h For help on command line arguments.
+   - -t For the tag you want removed, in quotes.
+   - -j For the number of threads you want to run it on (default 4).
+   Example: 
+   ```
+   python main.py -t "Better Mineshaft" -j 8
+   ```
 4. Let it run.
 5. Replace the contents of your region folder with the contents of new_region.
 
 # Todo:
 
 - [x] More detailed output.
-- [ ] Multiple tag input.
-- [ ] Optimizations (Multithreading?).
+- [ ] Multiple tag input. (In progress)
+- [x] Multithreading. (Thanks DemonInTheCloset!, now 2.8x faster)
+- [x] Command line arguments. (Thanks DemonInTheCloset)
 - [ ] Selection of world/dimensions.
 - [ ] Allow for picking up progress where program left off.
+- [ ] Checking disk space available.
+- [ ] Auto-removal of all non vanilla structures mode.
 
 # Notes:
 
-- I have only tested this with 1.16.5 worlds.
+- I have only tested this with 1.16 worlds.
 - Feel free to message me on twitter if you need help using it.
+- With large worlds, it may take a while to process, also depends on your hardware. 
