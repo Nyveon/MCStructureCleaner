@@ -36,13 +36,14 @@ def sep():
     print("----------------------------------")
 
 
-# Functions
-def _remove_tags(args: tuple[set[str], Path, Path]) -> int:
-    return remove_tags(*args)
+# Removing Tags
+def _remove_tags_region(args: tuple[set[str], Path, Path]) -> int:
+    return remove_tags_region(*args)
 
 
-def remove_tags(to_replace: set[str], src: Path, dst: Path) -> int:
-    """Remove tags in to_replace from src"""
+def remove_tags_region(to_replace: set[str], src: Path, dst: Path) -> int:
+    """Remove tags in to_replace from the src region
+    Write changes to dst/src.name"""
     start: float = time.perf_counter()
     count: int = 0
 
@@ -78,6 +79,30 @@ def remove_tags(to_replace: set[str], src: Path, dst: Path) -> int:
     return count
 
 
+def remove_tags(tags: set[str], src: Path, dst: Path, jobs: int) -> None:
+    """Removes tags from src region files and writes them to dst"""
+    with Pool(processes=jobs) as pool:
+        start = time.perf_counter()
+
+        count = sum(
+            pool.map(
+                _remove_tags_region,
+                zip(
+                    itertools.repeat(tags),
+                    src.iterdir(),
+                    itertools.repeat(dst),
+                ),
+            )
+        )
+
+        end = time.perf_counter()
+
+        sep()
+        print(f"Done!\nRemoved {count} instances of tags: {tags}")
+        print(f"Took {end - start:.3f} seconds")
+
+
+# Environment
 def setup_environment(new_region: Path) -> bool:
     """Try to create new_region folder"""
     if new_region.exists():
@@ -107,8 +132,7 @@ def get_args() -> Namespace:
     return parser.parse_args()
 
 
-def main() -> None:
-    """The Main function"""
+def _main() -> None:
     args = get_args()
 
     to_replace = args.tag
@@ -127,27 +151,11 @@ def main() -> None:
         print("Aborted, nothing was done")
         return None
 
-    to_process = list(world_region.iterdir())
-    n_to_process = len(to_process)
+    n_to_process = len(world_region.iterdir())
 
-    with Pool(processes=num_processes) as pool:
-        start = time.perf_counter()
+    remove_tags({to_replace}, world_region, new_region, num_processes)
 
-        count = sum(
-            pool.map(
-                _remove_tags,
-                zip(
-                    itertools.repeat({to_replace}),
-                    to_process,
-                    itertools.repeat(new_region),
-                ),
-            )
-        )
-
-        end = time.perf_counter()
-        print(f"Done!\nRemoved {count} instances of tags: {to_replace}")
-        print(f"Took {end - start:.3f} seconds")
-
+    sep()
     print(f"Processed {n_to_process} files")
     print(f"You can now replace {world_region} with {new_region}")
 
@@ -155,4 +163,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    _main()
