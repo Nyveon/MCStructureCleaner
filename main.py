@@ -51,6 +51,7 @@ def _save_region(region: Region, dst: Path) -> None:
 # Removing Tags
 def load_region(src: Path) -> tuple[Region, str]:
     """Loads a region file"""
+    print(src)
     return (_load_region(src), src.name)
 
 
@@ -60,19 +61,18 @@ def make_callback(
     """Makes a callback to process a region"""
 
     def callback1(tup1):
+        print(tup1)
         region, name = tup1
 
         def callback2(tup2):
             region2, _ = tup2
-            thread_pool.apply_async(_save_region, region2, dst / name)
+            thread_pool.apply_async(_save_region, [region2, dst / name])
 
         coords = name.split(".")
 
         pool.apply_async(
             remove_tags_region,
-            tags,
-            region,
-            (int(coords[1]), int(coords[2])),
+            [tags, region, (int(coords[1]), int(coords[2]))],
             callback=callback2,
         )
 
@@ -111,7 +111,7 @@ def remove_tags_region(
     end: float = time.perf_counter()
     print(f"{count} instances of tags removed in {end - start:.3f} s")
 
-    return new_region, count
+    return (new_region, count)
 
 
 def remove_tags(tags: set[str], src: Path, dst: Path, jobs: int) -> None:
@@ -122,7 +122,9 @@ def remove_tags(tags: set[str], src: Path, dst: Path, jobs: int) -> None:
         with Pool(processes=jobs) as pool:
             process_region = make_callback(pool, t_p, tags, dst)
 
-            t_p.map_async(load_region, src.iterdir(), callback=process_region)
+            dirs = src.iterdir()
+            for path in dirs:
+                t_p.apply_async(load_region, [path], callback=process_region).get()
 
     end = time.perf_counter()
 
