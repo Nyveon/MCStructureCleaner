@@ -157,11 +157,15 @@ def get_args() -> Namespace:
     tag_help = "The EXACT structure tag name you want removed (Use NBTExplorer\
             to find the name)"
     jobs_help = f"The number of processes to run (default: {jobs})"
+    source_help = "The region folder (default world/region)"
+    destination_help = "The destination folder (default new_regions)"
 
     parser = ArgumentParser(prog=prog_msg)
 
     parser.add_argument("-t", "--tag", type=str, help=tag_help, required=True)
     parser.add_argument("-j", "--jobs", type=int, help=jobs_help, default=jobs)
+    parser.add_argument("--src", help=source_help, default="world/region")
+    parser.add_argument("--dst", help=destination_help, default="new_region")
 
     return parser.parse_args()
 
@@ -170,8 +174,8 @@ def _main() -> None:
     args = get_args()
 
     to_replace = args.tag
-    new_region = Path("new_region")
-    world_region = Path("world/region")
+    new_region = Path(args.dst)
+    world_region = Path(args.src)
     num_processes = args.jobs
 
     print(f"Replacing {to_replace} in all region files.")
