@@ -124,6 +124,8 @@ def main() -> None:
     n_to_process = len(to_process)
 
     with Pool(processes=num_processes) as p:
+        start = time.perf_counter()
+
         count = sum(
             p.map(
                 _remove_tags,
@@ -134,7 +136,10 @@ def main() -> None:
                 ),
             )
         )
+
+        end = time.perf_counter()
         print(f"Done!\nRemoved {count} instances of tags: {to_replace}")
+        print(f"Took {end - start:.3f} seconds")
 
     print(f"Processed {n_to_process} files")
     print(f"You can now replace {world_region} with {new_region}")
