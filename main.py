@@ -24,8 +24,10 @@ from pathlib import Path
 
 # Multiprocessing
 from multiprocessing import Pool, cpu_count
+from multiprocessing.pool import ThreadPool
 
-import anvil  # anvil-parser by matcool
+# anvil-parser by matcool
+from anvil import Region, Chunk, EmptyRegion
 
 VERSION = "1.2"
 
@@ -35,20 +37,57 @@ def sep():
     print("----------------------------------")
 
 
+# Dealing with files
+def _load_region(region_path: Path) -> Region:
+    """Loads a region from a file"""
+    return Region.from_file(str(region_path.resolve()))
+
+
+def _save_region(region: Region, dst: Path) -> None:
+    """Saves a region to a file"""
+    region.save(str(dst.resolve()))
+
+
 # Removing Tags
-def _remove_tags_region(args: tuple[set[str], Path, Path]) -> int:
-    return remove_tags_region(*args)
+def load_region(src: Path) -> tuple[Region, str]:
+    """Loads a region file"""
+    return (_load_region(src), src.name)
 
 
-def remove_tags_region(to_replace: set[str], src: Path, dst: Path) -> int:
+def make_callback(
+    pool: Pool, thread_pool: ThreadPool, tags: set[str], dst: Path
+) -> callable:
+    """Makes a callback to process a region"""
+
+    def callback1(tup1):
+        region, name = tup1
+
+        def callback2(tup2):
+            region2, _ = tup2
+            thread_pool.apply_async(_save_region, region2, dst / name)
+
+        coords = name.split(".")
+
+        pool.apply_async(
+            remove_tags_region,
+            tags,
+            region,
+            (int(coords[1]), int(coords[2])),
+            callback=callback2,
+        )
+
+    return callback1
+
+
+def remove_tags_region(
+    tags: set[str], region: Region, coords: tuple[int, int]
+) -> tuple[Region, int]:
     """Remove tags in to_replace from the src region
     Write changes to dst/src.name"""
     start: float = time.perf_counter()
     count: int = 0
 
-    coords = src.name.split(".")
-    region = anvil.Region.from_file(str(src.resolve()))
-    new_region = anvil.EmptyRegion(int(coords[1]), int(coords[2]))
+    new_region = EmptyRegion(*coords)
 
     # Check chunks
     for chunk_x, chunk_z in it.product(range(32), repeat=2):
@@ -57,40 +96,39 @@ def remove_tags_region(to_replace: set[str], src: Path, dst: Path) -> int:
             data = region.chunk_data(chunk_x, chunk_z)
 
             for tag in data["Level"]["Structures"]["Starts"].tags:
-                if tag.name in to_replace:
+                if tag.name in tags:
                     del data["Level"]["Structures"]["Starts"][tag.name]
                     count += 1
 
             for tag in data["Level"]["Structures"]["References"].tags:
-                if tag.name in to_replace:
+                if tag.name in tags:
                     del data["Level"]["Structures"]["References"][tag.name]
                     count += 1
 
             # Add the modified chunk data to the new region
-            new_region.add_chunk(anvil.Chunk(data))
-
-    # Save Region
-    new_region.save(str((dst / src.name).resolve()))
+            new_region.add_chunk(Chunk(data))
 
     end: float = time.perf_counter()
     print(f"{count} instances of tags removed in {end - start:.3f} s")
 
-    return count
+    return new_region, count
 
 
 def remove_tags(tags: set[str], src: Path, dst: Path, jobs: int) -> None:
     """Removes tags from src region files and writes them to dst"""
-    with Pool(processes=jobs) as pool:
-        start = time.perf_counter()
+    start = time.perf_counter()
 
-        data = zip(it.repeat(tags), src.iterdir(), it.repeat(dst))
-        count = sum(pool.map(_remove_tags_region, data))
+    with ThreadPool() as t_p:
+        with Pool(processes=jobs) as pool:
+            process_region = make_callback(pool, t_p, tags, dst)
 
-        end = time.perf_counter()
+            t_p.map_async(load_region, src.iterdir(), callback=process_region)
 
-        sep()
-        print(f"Done!\nRemoved {count} instances of tags: {tags}")
-        print(f"Took {end - start:.3f} seconds")
+    end = time.perf_counter()
+
+    sep()
+    print(f"Done!\nRemoved instances of tags: {tags}")
+    print(f"Took {end - start:.3f} seconds")
 
 
 # Environment
@@ -145,7 +183,7 @@ def _main() -> None:
         print("Aborted, nothing was done")
         return None
 
-    n_to_process = len(world_region.iterdir())
+    n_to_process = len(list(world_region.iterdir()))
 
     remove_tags({to_replace}, world_region, new_region, num_processes)
 
