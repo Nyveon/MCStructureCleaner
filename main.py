@@ -23,7 +23,7 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
 # Multiprocessing
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 
 import anvil  # anvil-parser by matcool
 
@@ -111,14 +111,17 @@ def setup_environment(new_region: Path) -> bool:
 #  CLI
 def get_args() -> Namespace:
     """Get CLI Arguments"""
+    jobs = cpu_count() // 2
+
     prog_msg = f"MC Structure cleaner\nBy: Nyveon\nVersion: {VERSION}"
     tag_help = "The EXACT structure tag name you want removed (Use NBTExplorer\
             to find the name)"
-    jobs_help = "The number of processes to run (default 4)"
+    jobs_help = f"The number of processes to run (default: {jobs})"
+
     parser = ArgumentParser(prog=prog_msg)
 
     parser.add_argument("-t", "--tag", type=str, help=tag_help, required=True)
-    parser.add_argument("-j", "--jobs", type=int, help=jobs_help, default=4)
+    parser.add_argument("-j", "--jobs", type=int, help=jobs_help, default=jobs)
 
     return parser.parse_args()
 
