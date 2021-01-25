@@ -120,11 +120,11 @@ def remove_tags(tags: set[str], src: Path, dst: Path, jobs: int) -> None:
 
     with ThreadPool() as t_p:
         with Pool(processes=jobs) as pool:
-            process_region = make_callback(pool, t_p, tags, dst)
+            callback = make_callback(pool, t_p, tags, dst)
 
             dirs = src.iterdir()
             for path in dirs:
-                t_p.apply_async(load_region, [path], callback=process_region).get()
+                t_p.apply_async(load_region, [path], callback=callback).get()
 
     end = time.perf_counter()
 
