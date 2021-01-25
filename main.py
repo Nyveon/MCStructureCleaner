@@ -3,15 +3,14 @@ MC Structure cleaner
 By: Nyveon
 
 v: 1.1
-Modded structure cleaner for minecraft. Removes all references to non-existent structures to allow for
-clean error logs and chunk saving.
+Modded structure cleaner for minecraft. Removes all references to non-existent
+structures to allow for clean error logs and chunk saving.
 """
 
 # Using Python 3.9 annotations
 from __future__ import annotations
 
 # Imports
-import anvil  # anvil-parser by matcool
 import time  # for progress messages
 
 
@@ -27,10 +26,13 @@ from pathlib import Path
 # Multiprocessing
 from multiprocessing import Pool
 
-version = "1.2"
+import anvil  # anvil-parser by matcool
+
+VERSION = "1.2"
 
 
 def sep():
+    """Print separator line"""
     print("----------------------------------")
 
 
@@ -40,6 +42,7 @@ def _remove_tags(args: tuple[set[str], Path, Path]) -> int:
 
 
 def remove_tags(to_replace: set[str], src: Path, dst: Path) -> int:
+    """Remove tags in to_replace from src"""
     start: float = time.perf_counter()
     count: int = 0
 
@@ -48,7 +51,7 @@ def remove_tags(to_replace: set[str], src: Path, dst: Path) -> int:
     new_region = anvil.EmptyRegion(int(coords[1]), int(coords[2]))
 
     # Check chunks
-    for chunk_x, chunk_z in itertools.combinations_with_replacement(range(32), 2):
+    for chunk_x, chunk_z in itertools.product(range(32), repeat=2):
         # Chunk Exists
         if region.chunk_location(chunk_x, chunk_z) != (0, 0):
             data = region.chunk_data(chunk_x, chunk_z)
@@ -76,24 +79,27 @@ def remove_tags(to_replace: set[str], src: Path, dst: Path) -> int:
 
 
 def setup_environment(new_region: Path) -> bool:
+    """Try to create new_region folder"""
     if new_region.exists():
-        print(f"{new_region.resolve()} already exists, this may cause problems!")
-        proceed = input("Do you want to preceed regardless? [y/N] ")
+        print(f"{new_region.resolve()} exists, this may cause problems")
+        proceed = input("Do you want to proceed regardless? [y/N] ")
 
         return proceed.startswith("y")
-    else:
-        new_region.mkdir()
-        print(f"Saving newly generated region files to {new_region.resolve()}")
 
-        return True
+    new_region.mkdir()
+    print(f"Saving newly generated region files to {new_region.resolve()}")
+
+    return True
 
 
 #  CLI
 def get_args() -> Namespace:
-    prog_msg = f"MC Structure cleaner\nBy: Nyveon\nVersion: {version}"
-    tag_help = "The EXACT structure tag name you want removed (Use NBTExplorer to find the name)"
+    """Get CLI Arguments"""
+    prog_msg = f"MC Structure cleaner\nBy: Nyveon\nVersion: {VERSION}"
+    tag_help = "The EXACT structure tag name you want removed (Use NBTExplorer\
+            to find the name)"
     jobs_help = "The number of processes to run (default 4)"
-    parser = ArgumentParser()
+    parser = ArgumentParser(prog=prog_msg)
 
     parser.add_argument("-t", "--tag", type=str, help=tag_help, required=True)
     parser.add_argument("-j", "--jobs", type=int, help=jobs_help, default=4)
@@ -102,6 +108,7 @@ def get_args() -> Namespace:
 
 
 def main() -> None:
+    """The Main function"""
     args = get_args()
 
     to_replace = args.tag
@@ -123,11 +130,11 @@ def main() -> None:
     to_process = list(world_region.iterdir())
     n_to_process = len(to_process)
 
-    with Pool(processes=num_processes) as p:
+    with Pool(processes=num_processes) as pool:
         start = time.perf_counter()
 
         count = sum(
-            p.map(
+            pool.map(
                 _remove_tags,
                 zip(
                     itertools.repeat({to_replace}),
@@ -143,6 +150,8 @@ def main() -> None:
 
     print(f"Processed {n_to_process} files")
     print(f"You can now replace {world_region} with {new_region}")
+
+    return None
 
 
 if __name__ == "__main__":
