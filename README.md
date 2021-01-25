@@ -17,10 +17,10 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 # Todo:
 
 - [x] More detailed output.
-- [] Multiple tag input.
-- [] Optimizations (Multithreading?).
-- [] Selection of world/dimensions.
-- [] Allow for picking up progress where program left off.
+- [ ] Multiple tag input.
+- [ ] Optimizations (Multithreading?).
+- [ ] Selection of world/dimensions.
+- [ ] Allow for picking up progress where program left off.
 
 # Notes:
 
