@@ -13,8 +13,8 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 3. Run main.py, and instruct it as to which structure tag you wish to remove. I recommend using [NBTExplorer](https://github.com/jaquadro/NBTExplorer) to find the name.
    - -h For help on command line arguments.
    - -t For the tag you want removed, in quotes.
-   - -j For the number of threads you want to run it on (default 4).
-   Example: 
+   - -j For the number of threads you want to run it on (default 4, recommended 2x the number of cores in your CPU).
+   - Example: 
    ```
    python main.py -t "Better Mineshaft" -j 8
    ```
