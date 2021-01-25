@@ -64,11 +64,11 @@ def make_callback(
 
         def callback2(tup2):
             region2, _ = tup2
-            thread_pool.apply_async(_save_region, [region2, dst / name])
+            return thread_pool.apply_async(_save_region, [region2, dst / name])
 
         coords = name.split(".")
 
-        pool.apply_async(
+        return pool.apply_async(
             remove_tags_region,
             [tags, region, (int(coords[1]), int(coords[2]))],
             callback=callback2,
