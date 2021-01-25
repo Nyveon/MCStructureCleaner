@@ -25,4 +25,4 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 # Notes:
 
 - I have only tested this with 1.16.5 worlds.
-- Feel free to message DM me on twitter if you need help using it.
+- Feel free to message me on twitter if you need help using it.
