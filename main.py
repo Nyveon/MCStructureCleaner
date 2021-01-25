@@ -7,6 +7,9 @@ Modded structure cleaner for minecraft. Removes all references to non-existent s
 clean error logs and chunk saving.
 """
 
+# Using Python 3.9 annotations
+from __future__ import annotations
+
 # Imports
 import anvil  # anvil-parser by matcool
 import time  # for progress messages
@@ -32,6 +35,10 @@ def sep():
 
 
 # Functions
+def _remove_tags(args: tuple[set[str], Path, Path]) -> int:
+    return remove_tags(*args)
+
+
 def remove_tags(to_replace: set[str], src: Path, dst: Path) -> int:
     start: float = time.perf_counter()
     count: int = 0
@@ -118,7 +125,14 @@ def main() -> None:
 
     with Pool(processes=num_processes) as p:
         count = sum(
-            p.map(lambda f: remove_tags({to_replace}, f, new_region), to_process)
+            p.map(
+                _remove_tags,
+                zip(
+                    itertools.repeat({to_replace}),
+                    to_process,
+                    itertools.repeat(new_region),
+                ),
+            )
         )
         print(f"Done!\nRemoved {count} instances of tags: {to_replace}")
 
