@@ -13,9 +13,8 @@ from __future__ import annotations
 # Imports
 import time  # for progress messages
 
-
 # Efficient iteration
-import itertools
+import itertools as it
 
 # Argument parsing
 from argparse import ArgumentParser, Namespace
@@ -52,7 +51,7 @@ def remove_tags_region(to_replace: set[str], src: Path, dst: Path) -> int:
     new_region = anvil.EmptyRegion(int(coords[1]), int(coords[2]))
 
     # Check chunks
-    for chunk_x, chunk_z in itertools.product(range(32), repeat=2):
+    for chunk_x, chunk_z in it.product(range(32), repeat=2):
         # Chunk Exists
         if region.chunk_location(chunk_x, chunk_z) != (0, 0):
             data = region.chunk_data(chunk_x, chunk_z)
@@ -84,16 +83,8 @@ def remove_tags(tags: set[str], src: Path, dst: Path, jobs: int) -> None:
     with Pool(processes=jobs) as pool:
         start = time.perf_counter()
 
-        count = sum(
-            pool.map(
-                _remove_tags_region,
-                zip(
-                    itertools.repeat(tags),
-                    src.iterdir(),
-                    itertools.repeat(dst),
-                ),
-            )
-        )
+        data = zip(it.repeat(tags), src.iterdir(), it.repeat(dst))
+        count = sum(pool.map(_remove_tags_region, data))
 
         end = time.perf_counter()
 
