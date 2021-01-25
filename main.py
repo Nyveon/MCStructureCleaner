@@ -51,7 +51,6 @@ def _save_region(region: Region, dst: Path) -> None:
 # Removing Tags
 def load_region(src: Path) -> tuple[Region, str]:
     """Loads a region file"""
-    print(src)
     return (_load_region(src), src.name)
 
 
@@ -61,7 +60,6 @@ def make_callback(
     """Makes a callback to process a region"""
 
     def callback1(tup1):
-        print(tup1)
         region, name = tup1
 
         def callback2(tup2):
