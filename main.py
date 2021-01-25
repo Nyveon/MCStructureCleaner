@@ -24,7 +24,7 @@ from pathlib import Path
 
 # Multiprocessing
 from multiprocessing import Pool, cpu_count
-from multiprocessing.pool import ThreadPool
+from multiprocessing.pool import ThreadPool, AsyncResult
 
 # anvil-parser by matcool
 from anvil import Region, Chunk, EmptyRegion
@@ -54,27 +54,23 @@ def load_region(src: Path) -> tuple[Region, str]:
     return (_load_region(src), src.name)
 
 
-def make_callback(
-    pool: Pool, thread_pool: ThreadPool, tags: set[str], dst: Path
-) -> callable:
-    """Makes a callback to process a region"""
+def _async_remove_tags(
+    tags: set[str], dst: Path, data: AsyncResult
+) -> tuple[Region, int, Path]:
+    region, name = data.get()
 
-    def callback1(tup1):
-        region, name = tup1
+    coords = name.split(".")
 
-        def callback2(tup2):
-            region2, _ = tup2
-            return thread_pool.apply_async(_save_region, [region2, dst / name])
+    return (
+        remove_tags_region(tags, region, (int(coords[1]), int(coords[2]))),
+        dst / name,
+    )
 
-        coords = name.split(".")
 
-        return pool.apply_async(
-            remove_tags_region,
-            [tags, region, (int(coords[1]), int(coords[2]))],
-            callback=callback2,
-        )
-
-    return callback1
+def _async_save(data: AsyncResult) -> int:
+    region, count, dst = data.get()
+    _save_region(region, dst)
+    return count
 
 
 def remove_tags_region(
@@ -115,19 +111,20 @@ def remove_tags_region(
 def remove_tags(tags: set[str], src: Path, dst: Path, jobs: int) -> None:
     """Removes tags from src region files and writes them to dst"""
     start = time.perf_counter()
+    counts = []
 
     with ThreadPool() as t_p:
         with Pool(processes=jobs) as pool:
-            callback = make_callback(pool, t_p, tags, dst)
+            for path in src.iterdir():
+                region = t_p.apply_async(load_region, [path])
+                new = pool.apply_async(_async_remove_tags, tags, dst, region)
+                counts.append(t_p.apply_async(_async_save, new))
 
-            dirs = src.iterdir()
-            for path in dirs:
-                t_p.apply_async(load_region, [path], callback=callback).get()
-
+    count = sum(map(lambda d: d.get(), counts))
     end = time.perf_counter()
 
     sep()
-    print(f"Done!\nRemoved instances of tags: {tags}")
+    print(f"Done!\nRemoved {count} instances of tags: {tags}")
     print(f"Took {end - start:.3f} seconds")
 
 
