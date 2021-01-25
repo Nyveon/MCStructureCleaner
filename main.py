@@ -24,7 +24,6 @@ from pathlib import Path
 
 # Multiprocessing
 from multiprocessing import Pool, cpu_count
-from multiprocessing.pool import ThreadPool, AsyncResult
 
 # anvil-parser by matcool
 from anvil import Region, Chunk, EmptyRegion
@@ -38,9 +37,9 @@ def sep():
 
 
 # Dealing with files
-def _load_region(region_path: Path) -> Region:
+def _load_region(region_path: Path) -> tuple[Region, str]:
     """Loads a region from a file"""
-    return Region.from_file(str(region_path.resolve()))
+    return Region.from_file(str(region_path.resolve())), region_path.name
 
 
 def _save_region(region: Region, dst: Path) -> None:
@@ -49,30 +48,6 @@ def _save_region(region: Region, dst: Path) -> None:
 
 
 # Removing Tags
-def load_region(src: Path) -> tuple[Region, str]:
-    """Loads a region file"""
-    return (_load_region(src), src.name)
-
-
-def _async_remove_tags(
-    tags: set[str], dst: Path, data: AsyncResult
-) -> tuple[Region, int, Path]:
-    region, name = data.get()
-
-    coords = name.split(".")
-
-    return (
-        remove_tags_region(tags, region, (int(coords[1]), int(coords[2]))),
-        dst / name,
-    )
-
-
-def _async_save(data: AsyncResult) -> int:
-    region, count, dst = data.get()
-    _save_region(region, dst)
-    return count
-
-
 def remove_tags_region(
     tags: set[str], region: Region, coords: tuple[int, int]
 ) -> tuple[Region, int]:
@@ -108,19 +83,29 @@ def remove_tags_region(
     return (new_region, count)
 
 
+def _process_regions(tag: set[str], dst: Path, tup: tuple[Region, str]) -> int:
+    region, name = tup
+
+    _, x_loc, z_loc, _ = name.split(".")
+    coords = (int(x_loc), int(z_loc))
+
+    region, count = remove_tags_region(tag, region, coords)
+
+    _save_region(region, dst / name)
+
+    return count
+
+
 def remove_tags(tags: set[str], src: Path, dst: Path, jobs: int) -> None:
     """Removes tags from src region files and writes them to dst"""
     start = time.perf_counter()
-    counts = []
+    count = None
 
-    with ThreadPool() as t_p:
-        with Pool(processes=jobs) as pool:
-            for path in src.iterdir():
-                region = t_p.apply_async(load_region, [path])
-                new = pool.apply_async(_async_remove_tags, tags, dst, region)
-                counts.append(t_p.apply_async(_async_save, new))
+    with Pool(processes=jobs) as pool:
+        regions = pool.imap_unordered(_load_region, src.iterdir())
+        data = zip(it.repeat(tags), it.repeat(dst), regions)
+        count = sum(pool.starmap(_process_regions, data))
 
-    count = sum(map(lambda d: d.get(), counts))
     end = time.perf_counter()
 
     sep()
