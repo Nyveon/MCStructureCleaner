@@ -1,8 +1,8 @@
 """
 MC Structure cleaner
-By: Nyveon
+By: Nyveon and DemonInTheCloset
 
-v: 1.1
+v: 1.2
 Modded structure cleaner for minecraft. Removes all references to non-existent
 structures to allow for clean error logs and chunk saving.
 """
@@ -145,7 +145,7 @@ def _main() -> None:
         print("Aborted, nothing was done")
         return None
 
-    n_to_process = len(world_region.iterdir())
+    n_to_process = len(list(world_region.iterdir()))
 
     remove_tags({to_replace}, world_region, new_region, num_processes)
 
