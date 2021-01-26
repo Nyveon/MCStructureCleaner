@@ -25,7 +25,8 @@ from pathlib import Path
 # Multiprocessing
 from multiprocessing import Pool, cpu_count
 
-import anvil  # anvil-parser by matcool
+# anvil-parser by matcool
+from anvil import Region, Chunk, EmptyRegion
 
 VERSION = "1.2"
 
@@ -35,20 +36,27 @@ def sep():
     print("----------------------------------")
 
 
+# Dealing with files
+def _load_region(region_path: Path) -> tuple[Region, str]:
+    """Loads a region from a file"""
+    return Region.from_file(str(region_path.resolve())), region_path.name
+
+
+def _save_region(region: Region, dst: Path) -> None:
+    """Saves a region to a file"""
+    region.save(str(dst.resolve()))
+
+
 # Removing Tags
-def _remove_tags_region(args: tuple[set[str], Path, Path]) -> int:
-    return remove_tags_region(*args)
-
-
-def remove_tags_region(to_replace: set[str], src: Path, dst: Path) -> int:
+def remove_tags_region(
+    tags: set[str], region: Region, coords: tuple[int, int]
+) -> tuple[Region, int]:
     """Remove tags in to_replace from the src region
     Write changes to dst/src.name"""
     start: float = time.perf_counter()
     count: int = 0
 
-    coords = src.name.split(".")
-    region = anvil.Region.from_file(str(src.resolve()))
-    new_region = anvil.EmptyRegion(int(coords[1]), int(coords[2]))
+    new_region = EmptyRegion(*coords)
 
     # Check chunks
     for chunk_x, chunk_z in it.product(range(32), repeat=2):
@@ -57,40 +65,52 @@ def remove_tags_region(to_replace: set[str], src: Path, dst: Path) -> int:
             data = region.chunk_data(chunk_x, chunk_z)
 
             for tag in data["Level"]["Structures"]["Starts"].tags:
-                if tag.name in to_replace:
+                if tag.name in tags:
                     del data["Level"]["Structures"]["Starts"][tag.name]
                     count += 1
 
             for tag in data["Level"]["Structures"]["References"].tags:
-                if tag.name in to_replace:
+                if tag.name in tags:
                     del data["Level"]["Structures"]["References"][tag.name]
                     count += 1
 
             # Add the modified chunk data to the new region
-            new_region.add_chunk(anvil.Chunk(data))
-
-    # Save Region
-    new_region.save(str((dst / src.name).resolve()))
+            new_region.add_chunk(Chunk(data))
 
     end: float = time.perf_counter()
     print(f"{count} instances of tags removed in {end - start:.3f} s")
+
+    return (new_region, count)
+
+
+def _process_regions(tag: set[str], dst: Path, tup: tuple[Region, str]) -> int:
+    region, name = tup
+
+    _, x_loc, z_loc, _ = name.split(".")
+    coords = (int(x_loc), int(z_loc))
+
+    region, count = remove_tags_region(tag, region, coords)
+
+    _save_region(region, dst / name)
 
     return count
 
 
 def remove_tags(tags: set[str], src: Path, dst: Path, jobs: int) -> None:
     """Removes tags from src region files and writes them to dst"""
+    start = time.perf_counter()
+    count = None
+
     with Pool(processes=jobs) as pool:
-        start = time.perf_counter()
+        regions = pool.imap_unordered(_load_region, src.iterdir())
+        data = zip(it.repeat(tags), it.repeat(dst), regions)
+        count = sum(pool.starmap(_process_regions, data))
 
-        data = zip(it.repeat(tags), src.iterdir(), it.repeat(dst))
-        count = sum(pool.map(_remove_tags_region, data))
+    end = time.perf_counter()
 
-        end = time.perf_counter()
-
-        sep()
-        print(f"Done!\nRemoved {count} instances of tags: {tags}")
-        print(f"Took {end - start:.3f} seconds")
+    sep()
+    print(f"Done!\nRemoved {count} instances of tags: {tags}")
+    print(f"Took {end - start:.3f} seconds")
 
 
 # Environment
@@ -117,11 +137,15 @@ def get_args() -> Namespace:
     tag_help = "The EXACT structure tag name you want removed (Use NBTExplorer\
             to find the name)"
     jobs_help = f"The number of processes to run (default: {jobs})"
+    source_help = "The region folder (default world/region)"
+    destination_help = "The destination folder (default new_regions)"
 
     parser = ArgumentParser(prog=prog_msg)
 
     parser.add_argument("-t", "--tag", type=str, help=tag_help, required=True)
     parser.add_argument("-j", "--jobs", type=int, help=jobs_help, default=jobs)
+    parser.add_argument("--src", help=source_help, default="world/region")
+    parser.add_argument("--dst", help=destination_help, default="new_region")
 
     return parser.parse_args()
 
@@ -130,8 +154,8 @@ def _main() -> None:
     args = get_args()
 
     to_replace = args.tag
-    new_region = Path("new_region")
-    world_region = Path("world/region")
+    new_region = Path(args.dst)
+    world_region = Path(args.src)
     num_processes = args.jobs
 
     print(f"Replacing {to_replace} in all region files.")
