@@ -30,7 +30,7 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 - [ ] Multiple tag input. (In progress)
 - [x] Multithreading. (Thanks DemonInTheCloset!, now 2.8x faster)
 - [x] Command line arguments. (Thanks DemonInTheCloset)
-- [ ] Selection of world/dimensions.
+- [x] Selection of world/dimensions.
 - [ ] Allow for picking up progress where program left off.
 - [ ] Checking disk space available.
 - [ ] Auto-removal of all non vanilla structures mode.
