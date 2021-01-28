@@ -2,7 +2,7 @@
 MC Structure cleaner
 By: Nyveon and DemonInTheCloset
 
-v: 1.2
+v: 1.3
 Modded structure cleaner for minecraft. Removes all references to non-existent
 structures to allow for clean error logs and chunk saving.
 """
@@ -27,7 +27,7 @@ from multiprocessing import Pool, cpu_count
 
 import anvil  # anvil-parser by matcool
 
-VERSION = "1.2"
+VERSION = "1.3"
 
 
 def sep():
@@ -117,11 +117,15 @@ def get_args() -> Namespace:
     tag_help = "The EXACT structure tag name you want removed (Use NBTExplorer\
             to find the name)"
     jobs_help = f"The number of processes to run (default: {jobs})"
+    world_help = f"The name of the world you wish to process (default: \"world\")"
+    region_help = f"The name of the region folder (dimension) you wish to process (default: "")"
 
     parser = ArgumentParser(prog=prog_msg)
 
     parser.add_argument("-t", "--tag", type=str, help=tag_help, required=True)
     parser.add_argument("-j", "--jobs", type=int, help=jobs_help, default=jobs)
+    parser.add_argument("-w", "--world", type=str, help=world_help, default="world")
+    parser.add_argument("-r", "--region", type=str, help=region_help, default="")
 
     return parser.parse_args()
 
@@ -130,11 +134,11 @@ def _main() -> None:
     args = get_args()
 
     to_replace = args.tag
-    new_region = Path("new_region")
-    world_region = Path("world/region")
+    new_region = Path("new_" + args.region + "region")
+    world_region = Path(args.world + "/" + args.region + "/region")
     num_processes = args.jobs
 
-    print(f"Replacing {to_replace} in all region files.")
+    print(f"Replacing {to_replace} in all region files in {world_region}.")
     sep()
 
     if not world_region.exists():
