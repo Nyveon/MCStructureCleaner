@@ -9,7 +9,7 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 # Usage
 
 1. Install the requirements: [Python 3.x](https://www.python.org/) and [Matcool's Anvil Parser](https://github.com/matcool/anvil-parser).
-2. Place main.py in the same directory as your world folder.
+2. Download the latest release and place main.py in the same directory as your world folder.
 3. Run main.py, and instruct it as to which structure tag you wish to remove. I recommend using [NBTExplorer](https://github.com/jaquadro/NBTExplorer) to find the name.
    - -h For help on command line arguments.
    - -t For the tag you want removed, in quotes.
