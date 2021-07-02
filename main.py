@@ -111,7 +111,7 @@ def remove_tags_region(to_replace: set[str], src: Path, dst: Path, mode: str) ->
     new_region.save(str((dst / src.name).resolve()))
 
     end: float = time.perf_counter()
-    print(f"{count} instances of tags removed in {end - start:.3f} s")
+    print(f"File {src}: {count} instances of tags removed in {end - start:.3f} s")
 
     # Output for purge mode (removed non vanilla tags per file)
     if mode == "purge" and len(removed_tags) != 0:
@@ -167,15 +167,15 @@ def get_args() -> Namespace:
     jobs_help = f"The number of processes to run (default: {jobs})"
     world_help = f"The name of the world you wish to process (default: \"world\")"
     region_help = f"The name of the region folder (dimension) you wish to process (default: "")"
-    mode_help = f"The type of tag cleaning you wish to perform (default: \"single\")"
+    mode_help = f"The type of tag cleaning you wish to perform (default: \"normal\")"
 
     parser = ArgumentParser(prog=prog_msg)
 
-    parser.add_argument("-t", "--tag", type=str, help=tag_help, default="")
+    parser.add_argument("-t", "--tag", type=str, help=tag_help, default="", nargs="*")
     parser.add_argument("-j", "--jobs", type=int, help=jobs_help, default=jobs)
     parser.add_argument("-w", "--world", type=str, help=world_help, default="world")
     parser.add_argument("-r", "--region", type=str, help=region_help, default="")
-    parser.add_argument("-m", "--mode", type=str, help=mode_help, default="single")
+    parser.add_argument("-m", "--mode", type=str, help=mode_help, default="normal")
 
     return parser.parse_args()
 
@@ -183,7 +183,7 @@ def get_args() -> Namespace:
 def _main() -> None:
     args = get_args()
 
-    to_replace = args.tag
+    to_replace = set(args.tag)
     new_region = Path("new_" + args.region + "region")
     world_region = Path(args.world + "/" + args.region + "/region")
     num_processes = args.jobs
@@ -213,7 +213,7 @@ def _main() -> None:
 
     n_to_process = len(list(world_region.iterdir()))
 
-    remove_tags({to_replace}, world_region, new_region, num_processes, mode)
+    remove_tags(to_replace, world_region, new_region, num_processes, mode)
 
     # End output
     sep()
