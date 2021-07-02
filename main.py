@@ -26,6 +26,7 @@ from pathlib import Path
 from multiprocessing import Pool, cpu_count
 
 import anvil  # anvil-parser by matcool
+from typing import Set, Tuple
 
 VERSION = "1.4"
 
@@ -60,11 +61,11 @@ def sep():
 
 
 # Removing Tags
-def _remove_tags_region(args: tuple[set[str], Path, Path, str]) -> int:
+def _remove_tags_region(args: Tuple[Set[str], Path, Path, str]) -> int:
     return remove_tags_region(*args)
 
 
-def remove_tags_region(to_replace: set[str], src: Path, dst: Path, mode: str) -> int:
+def remove_tags_region(to_replace: Set[str], src: Path, dst: Path, mode: str) -> int:
     """Remove tags in to_replace from the src region
     Write changes to dst/src.name"""
     start: float = time.perf_counter()
@@ -79,10 +80,11 @@ def remove_tags_region(to_replace: set[str], src: Path, dst: Path, mode: str) ->
 
     # Lambda function for checking if a tag is valid
     if mode == "purge":
-        def check_tag(_tag): return _tag.name not in VANILLA_STRUCTURES
+        def check_tag(_tag):
+            return _tag.name not in VANILLA_STRUCTURES
     else:
-        def check_tag(_tag): return _tag.name in to_replace
-
+        def check_tag(_tag):
+            return _tag.name in to_replace
 
     # Check chunks
     for chunk_x, chunk_z in it.product(range(32), repeat=2):
@@ -103,7 +105,6 @@ def remove_tags_region(to_replace: set[str], src: Path, dst: Path, mode: str) ->
                     count += 1
                     removed_tags.add(tag.name)
 
-
             # Add the modified chunk data to the new region
             new_region.add_chunk(anvil.Chunk(data_copy))
 
@@ -122,7 +123,7 @@ def remove_tags_region(to_replace: set[str], src: Path, dst: Path, mode: str) ->
     return count
 
 
-def remove_tags(tags: set[str], src: Path, dst: Path, jobs: int, mode: str) -> None:
+def remove_tags(tags: Set[str], src: Path, dst: Path, jobs: int, mode: str) -> None:
     """Removes tags from src region files and writes them to dst"""
     with Pool(processes=jobs) as pool:
         start = time.perf_counter()
