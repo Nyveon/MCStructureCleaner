@@ -70,10 +70,19 @@ def remove_tags_region(to_replace: set[str], src: Path, dst: Path, mode: str) ->
     start: float = time.perf_counter()
     count: int = 0
 
+    print("Checking file:", src)
+
     coords = src.name.split(".")
     region = anvil.Region.from_file(str(src.resolve()))
     new_region = anvil.EmptyRegion(int(coords[1]), int(coords[2]))
     removed_tags = set()
+
+    # Lambda function for checking if a tag is valid
+    if mode == "purge":
+        def check_tag(_tag): return _tag.name not in VANILLA_STRUCTURES
+    else:
+        def check_tag(_tag): return _tag.name in to_replace
+
 
     # Check chunks
     for chunk_x, chunk_z in it.product(range(32), repeat=2):
@@ -82,31 +91,18 @@ def remove_tags_region(to_replace: set[str], src: Path, dst: Path, mode: str) ->
             data = region.chunk_data(chunk_x, chunk_z)
             data_copy = region.chunk_data(chunk_x, chunk_z)
 
-            # - Purge mode -
-            if mode == "purge":
-                for tag in data["Level"]["Structures"]["Starts"].tags:
-                    if tag.name not in VANILLA_STRUCTURES:
-                        del data_copy["Level"]["Structures"]["Starts"][tag.name]
-                        count += 1
-                        removed_tags.add(tag.name)
+            for tag in data["Level"]["Structures"]["Starts"].tags:
+                if check_tag(tag):
+                    del data_copy["Level"]["Structures"]["Starts"][tag.name]
+                    count += 1
+                    removed_tags.add(tag.name)
 
-                for tag in data["Level"]["Structures"]["References"].tags:
-                    if tag.name not in VANILLA_STRUCTURES:
-                        del data_copy["Level"]["Structures"]["References"][tag.name]
-                        count += 1
-                        removed_tags.add(tag.name)
+            for tag in data["Level"]["Structures"]["References"].tags:
+                if check_tag(tag):
+                    del data_copy["Level"]["Structures"]["References"][tag.name]
+                    count += 1
+                    removed_tags.add(tag.name)
 
-            # - Default (single) mode -
-            else:
-                for tag in data["Level"]["Structures"]["Starts"].tags:
-                    if tag.name in to_replace:
-                        del data_copy["Level"]["Structures"]["Starts"][tag.name]
-                        count += 1
-
-                for tag in data["Level"]["Structures"]["References"].tags:
-                    if tag.name in to_replace:
-                        del data_copy["Level"]["Structures"]["References"][tag.name]
-                        count += 1
 
             # Add the modified chunk data to the new region
             new_region.add_chunk(anvil.Chunk(data_copy))
