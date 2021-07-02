@@ -167,7 +167,6 @@ def get_args() -> Namespace:
     jobs_help = f"The number of processes to run (default: {jobs})"
     world_help = f"The name of the world you wish to process (default: \"world\")"
     region_help = f"The name of the region folder (dimension) you wish to process (default: "")"
-    mode_help = f"The type of tag cleaning you wish to perform (default: \"normal\")"
 
     parser = ArgumentParser(prog=prog_msg)
 
@@ -175,7 +174,6 @@ def get_args() -> Namespace:
     parser.add_argument("-j", "--jobs", type=int, help=jobs_help, default=jobs)
     parser.add_argument("-w", "--world", type=str, help=world_help, default="world")
     parser.add_argument("-r", "--region", type=str, help=region_help, default="")
-    parser.add_argument("-m", "--mode", type=str, help=mode_help, default="normal")
 
     return parser.parse_args()
 
@@ -187,15 +185,19 @@ def _main() -> None:
     new_region = Path("new_" + args.region + "region")
     world_region = Path(args.world + "/" + args.region + "/region")
     num_processes = args.jobs
-    mode = args.mode
 
-    # Force purge mode if no tag is given.
+    sep()
+
+    # Force purge mode if no tag is given, otherwise normal.
+    mode = "normal"
     if args.tag == "":
-        print("No tag given, defaulting to purge mode.")
+        print("No tag given, will run in purge mode.")
         mode = "purge"
+    else:
+        print("Tag(s) given, will run in normal mode.")
 
     # Feedback as to what the program is about to do.
-    if mode == "single":
+    if mode == "normal":
         print(f"Replacing {to_replace} in all region files in {world_region}.")
     elif mode == "purge":
         print(f"Replacing all non-vanilla structures in all region files in {world_region}.")
