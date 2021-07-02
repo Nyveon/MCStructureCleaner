@@ -21,9 +21,9 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
    ```
    python main.py -w "SMP"
    ```
-   - **Example 2:** This command will delete all occurances of "Better Mineshaft" in the world "My World", in the Nether (DIM-1), using 8 threads. 
+   - **Example 2:** This command will delete all occurances of "Better Mineshaft" and of "Better Stronghold" in the world "My World", in the Nether (DIM-1), using 8 threads. 
    ```
-   python main.py -t "Better Mineshaft" -j 8 -w "My World" -r "DIM-1"
+   python main.py -t "Better Mineshaft" "Better Stronghold" -j 8 -w "My World" -r "DIM-1"
    ```
 4. Let it run. This may take a while, depending on the power of your computer and the size of your world.
 5. Replace the contents of your region folder with the contents of new_region.
