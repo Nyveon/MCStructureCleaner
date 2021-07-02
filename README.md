@@ -9,8 +9,9 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 # Usage
 
 1. Install the requirements: [Python 3.x](https://www.python.org/) and [Matcool's Anvil Parser](https://github.com/matcool/anvil-parser).
-2. Download the [latest release](https://github.com/Nyveon/MCStructureCleaner/releases/) and place main.py in the same directory as your world folder (e.g: if it's a server, in the server folder).
-3. Run main.py, and instruct it as to which structure tag you wish to remove. I recommend using [NBTExplorer](https://github.com/jaquadro/NBTExplorer) to find the name.
+2. Download the [latest release](https://github.com/Nyveon/MCStructureCleaner/releases/) and place `main.py` in the same directory as your world folder 
+   - **Example:** If it's a server: in the server folder, or if it is a singleplayer world, in the saves folder.
+3. Run main.py with any of the following configuration properties. I recommend using [NBTExplorer](https://github.com/jaquadro/NBTExplorer) to find the name, or just letting the program fix all non-vanilla names by not inputting any tag.
    - `-h` For help on command line arguments.
    - `-t` For the tag you want removed, in quotes. Leave empty if you wish to remove ALL NON-VANILLA TAGS.
    - `-j` For the number of threads you want to run it on. Default: 2 x CPU Cores.
@@ -41,6 +42,6 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 
 # Notes:
 
-- I have only tested this with 1.16 worlds.
-- Feel free to message me on twitter if you need help using it.
-- With large worlds, it may take a while to process, also depends on your hardware. 
+- I have only tested this with 1.16 worlds. In theory it should work with all worlds that use the anvil format though.
+- Feel free to message me on discord or twitter if you need help using it.
+- Why did we make this? To save our own SMP world after uninstalling some mods. We had spent a lot of time on it, and didn't want anyone else to have to lose their world to the same bug.
