@@ -1,6 +1,6 @@
 # MCStructureCleaner
 
-Modded structure cleaner for minecraft. Removes all references to non-existent structures to allow for clean error logs and chunk saving. The program goes through every chunk, in every region file of the world, removing the relevant `structure reference` and `structure start` tags.
+Missing Structure Fix - Modded structure cleaner for minecraft. Removes all references to non-existent structures to allow for clean error logs and chunk saving. The program goes through every chunk, in every region file of the world, removing the relevant `structure reference` and `structure start` tags.
 
 Designed to fix worlds suffering from the [[MC-194811] Missing structures will destroy saved worlds](https://bugs.mojang.com/browse/MC-194811) bug, where uninstalling a mod which generated custom structures causes the world to become unstable.
 
@@ -44,4 +44,4 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 
 - I have only tested this with 1.16 worlds. In theory it should work with all worlds that use the anvil format though.
 - Feel free to message me on discord or twitter if you need help using it.
-- Why did we make this? To save our own SMP world after uninstalling some mods. We had spent a lot of time on it, and didn't want anyone else to have to lose their world to the same bug.
+- Why did we make this? To save our own SMP world after uninstalling some mods and getting the MC-194811 error. We had spent a lot of time on it, and didn't want anyone else to have to lose their world to the same bug.
