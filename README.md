@@ -31,14 +31,16 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 
 # Todo:
 
-- [x] More detailed output.
-- [x] Multiple tag input. (Implemented in 1.4)
-- [x] Multithreading. (Thanks DemonInTheCloset!, now 2.8x faster)
-- [x] Command line arguments. (Thanks DemonInTheCloset)
-- [x] Selection of world/dimensions.
-- [ ] Allow for picking up progress where program left off.
-- [ ] Checking disk space available.
-- [x] Auto-removal of all non vanilla structures mode. (Implemented in 1.4)
+- ✅ More detailed output.
+- ✅ Multiple tag input. (Implemented in 1.4)
+- ✅ Multithreading. (Thanks DemonInTheCloset!, now 2.8x faster)
+- ✅ Command line arguments. (Thanks DemonInTheCloset)
+- ✅ Selection of world/dimensions.
+- 🔲 Allow for picking up progress where program left off.
+- 🔲 Checking disk space available.
+- ✅ Auto-removal of all non vanilla structures mode. (Implemented in 1.4)
+- 🔲 All dimensions at once mode
+- 🔲 Potential new project: entity tag removal mode (possible branch off into batch operation NBT editor?)
 
 # Notes:
 
