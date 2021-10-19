@@ -29,6 +29,10 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 5. Replace the contents of your region folder with the contents of new_region.
 6. Enjoy your now working world 😊
 
+# Warnings
+1. Always back up your worlds before making any changes to them.
+2. Structure specific features will no longer work for the removed structures (This includes locating structures and custom loot tables).
+
 # Todo:
 
 - ✅ More detailed output.
