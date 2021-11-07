@@ -32,6 +32,7 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 # Warnings
 1. Always back up your worlds before making any changes to them.
 2. Structure specific effects that remained after uninstalling the mod will no longer work for the removed structures (This includes locating structures and custom loot tables).
+3. If you have corrupted region files (With the wrong data format, or a size of 0b) the script may crash.
 
 # Todo:
 
