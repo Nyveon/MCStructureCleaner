@@ -25,6 +25,7 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
    ```
    python main.py -t "Better Mineshaft" "Better Stronghold" -j 8 -w "My World" -r "DIM-1"
    ```
+   If you are on windows, I recommend using PowerShell.
 4. Let it run. This may take a while, depending on the power of your computer and the size of your world.
 5. Replace the contents of your region folder with the contents of new_region.
 6. Enjoy your now working world 😊
