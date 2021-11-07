@@ -8,7 +8,7 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 
 # Usage
 
-1. Install the requirements: [Python 3.x](https://www.python.org/) and [Matcool's Anvil Parser](https://github.com/matcool/anvil-parser).
+1. Install the requirements: [Python 3.x](https://www.python.org/) and [Matcool's Anvil Parser](https://github.com/matcool/anvil-parser). (NOTE: [Currently does not work with python 3.10](https://github.com/twoolie/NBT/issues/154))
 2. Download the [latest release](https://github.com/Nyveon/MCStructureCleaner/releases/) and place `main.py` in the same directory as your world folder 
    - **Example:** If it's a server: in the server folder, or if it is a singleplayer world, in the saves folder.
 3. Run main.py with any of the following configuration properties. I recommend using [NBTExplorer](https://github.com/jaquadro/NBTExplorer) to find the name, or just letting the program fix all non-vanilla names by not inputting any tag.
