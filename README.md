@@ -53,3 +53,6 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 - I have only tested this with 1.16 worlds. In theory it should work with all worlds that use the anvil format though.
 - Feel free to message me on discord or twitter if you need help using it.
 - Why did we make this? To save our own SMP world after uninstalling some mods and getting the MC-194811 error. We had spent a lot of time on it, and didn't want anyone else to have to lose their world to the same bug.
+
+
+<p align="center"> <img src="https://nyveon.com/wp-content/uploads/mc-structure-cleaner.png"> </p>
