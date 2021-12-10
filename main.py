@@ -93,17 +93,19 @@ def remove_tags_region(to_replace: Set[str], src: Path, dst: Path, mode: str) ->
             data = region.chunk_data(chunk_x, chunk_z)
             data_copy = region.chunk_data(chunk_x, chunk_z)
 
-            for tag in data["Level"]["Structures"]["Starts"].tags:
-                if check_tag(tag):
-                    del data_copy["Level"]["Structures"]["Starts"][tag.name]
-                    count += 1
-                    removed_tags.add(tag.name)
+            if hasattr(data["Level"]["Structures"]["Starts"], 'tags'):
+                for tag in data["Level"]["Structures"]["Starts"].tags:
+                    if check_tag(tag):
+                        del data_copy["Level"]["Structures"]["Starts"][tag.name]
+                        count += 1
+                        removed_tags.add(tag.name)
 
-            for tag in data["Level"]["Structures"]["References"].tags:
-                if check_tag(tag):
-                    del data_copy["Level"]["Structures"]["References"][tag.name]
-                    count += 1
-                    removed_tags.add(tag.name)
+            if hasattr(data["Level"]["Structures"]["References"], 'tags'):
+                for tag in data["Level"]["Structures"]["References"].tags:
+                    if check_tag(tag):
+                        del data_copy["Level"]["Structures"]["References"][tag.name]
+                        count += 1
+                        removed_tags.add(tag.name)
 
             # Add the modified chunk data to the new region
             new_region.add_chunk(anvil.Chunk(data_copy))
