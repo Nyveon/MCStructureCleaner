@@ -35,22 +35,21 @@ VERSION = "1.4"
 VANILLA_STRUCTURES = {
     "bastion_remnant",
     "buried_treasure",
+    "desert_pyramid",
     "endcity",
     "fortress",
+    "igloo",
+    "jungle_pyramid",
     "mansion",
     "mineshaft",
     "monument",
     "nether_fossil",
     "ocean_ruin",
     "pillager_outpost",
-    "ruined_portal",
     "shipwreck",
     "stronghold",
-    "desert_pyramid",
-    "igloo",
-    "jungle_pyramid",
     "swamp_hut",
-    "village"
+    "village",
 }
 
 
