@@ -21,6 +21,7 @@ from argparse import ArgumentParser, Namespace
 
 # Filesystem interaction
 from pathlib import Path
+import os
 
 # Multiprocessing
 from multiprocessing import Pool, cpu_count
@@ -104,6 +105,11 @@ def remove_tags_region(to_replace: Set[str], src: Path, dst: Path, mode: str) ->
         return 0
     else:
       print(f"{src} is not a valid file.")
+      return 0
+
+    # Check if file isn't empty
+    if os.path.getsize(src) == 0:
+      print(f"{src} is empty.")
       return 0
 
     coords = src.name.split(".")
