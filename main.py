@@ -44,9 +44,9 @@ VANILLA_STRUCTURES = {
     "mineshaft",
     "monument",
     "nether_fossil",
-    #"ocean_ruin",
-    #"pillager_outpost",
-    #"ruined_portal",
+    "ocean_ruin",
+    "pillager_outpost",
+    "ruined_portal",
     "shipwreck",
     "stronghold",
     "swamp_hut",
@@ -95,6 +95,16 @@ def remove_tags_region(to_replace: Set[str], src: Path, dst: Path, mode: str) ->
     count: int = 0
 
     print("Checking file:", src)
+    
+    # Check if it's even an .mca file
+    print(src)
+    if len(str(src)) > 4:
+      if str(src)[-1:-5:-1] != "acm.":
+        print(f"{src} is not a valid region file.")
+        return 0
+    else:
+      print(f"{src} is not a valid file.")
+      return 0
 
     coords = src.name.split(".")
     region = anvil.Region.from_file(str(src.resolve()))
