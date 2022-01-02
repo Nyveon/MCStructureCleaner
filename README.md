@@ -8,7 +8,7 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 
 # Usage
 
-1. Install the requirements: [Python 3.x](https://www.python.org/) and [Matcool's Anvil Parser](https://github.com/matcool/anvil-parser). (NOTE: [Currently does not work with python 3.10](https://github.com/twoolie/NBT/issues/154))
+1. Install the requirements: [Python 3.x](https://www.python.org/) and [Matcool's Anvil Parser](https://github.com/matcool/anvil-parser). 
 2. Download the [latest release](https://github.com/Nyveon/MCStructureCleaner/releases/) and place `main.py` in the same directory as your world folder 
    - **Example:** If it's a server: in the server folder, or if it is a singleplayer world, in the saves folder.
 3. Run main.py with any of the following configuration properties. I recommend using [NBTExplorer](https://github.com/jaquadro/NBTExplorer) to find the name, or just letting the program fix all non-vanilla names by not inputting any tag.
@@ -40,18 +40,19 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 - ✅ More detailed output.
 - ✅ Multiple tag input. (Implemented in 1.4)
 - ✅ Multithreading. (Thanks DemonInTheCloset!, now 2.8x faster)
-- ✅ Command line arguments. (Thanks DemonInTheCloset)
+- ✅ Command line arguments. (Thanks @DemonInTheCloset!)
 - ✅ Selection of world/dimensions.
 - 🔲 Allow for picking up progress where program left off.
 - 🔲 Checking disk space available.
 - ✅ Auto-removal of all non vanilla structures mode. (Implemented in 1.4)
 - 🔲 All dimensions at once mode
-- 🔲 Potential new project: entity tag removal mode (possible branch off into batch operation NBT editor?)
+- ✅ Checking for corrupted files (Thanks @lleheny0!)
+- ❓ 1.18 support (Included but needs mroe testing)
 
 # Notes:
 
-- I have only tested this with 1.16 worlds. In theory it should work with all worlds that use the anvil format though.
-- Feel free to message me on discord or twitter if you need help using it.
+- Confirmed working for world between version 1.11 and 1.17. 1.18 Support is included, but may not be perfect (please report any issues!)
+- Feel free to message me on discord (Nyveon#9999) or twitter (Nyveon) if you need help using it.
 - Why did we make this? To save our own SMP world after uninstalling some mods and getting the MC-194811 error. We had spent a lot of time on it, and didn't want anyone else to have to lose their world to the same bug.
 
 
