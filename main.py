@@ -21,6 +21,7 @@ from argparse import ArgumentParser, Namespace
 
 # Filesystem interaction
 from pathlib import Path
+import os
 
 # Multiprocessing
 from multiprocessing import Pool, cpu_count
@@ -28,15 +29,18 @@ from multiprocessing import Pool, cpu_count
 import anvil  # anvil-parser by matcool
 from typing import Set, Tuple
 
-VERSION = "1.4"
+VERSION = "1.5"
 
 # Configuration variables and constants
 # Gracias panchito, tomimi y puntito c:
 VANILLA_STRUCTURES = {
     "bastion_remnant",
     "buried_treasure",
+    "desert_pyramid",
     "endcity",
     "fortress",
+    "igloo",
+    "jungle_pyramid",
     "mansion",
     "mineshaft",
     "monument",
@@ -46,11 +50,8 @@ VANILLA_STRUCTURES = {
     "ruined_portal",
     "shipwreck",
     "stronghold",
-    "desert_pyramid",
-    "igloo",
-    "jungle_pyramid",
     "swamp_hut",
-    "village"
+    "village",
 }
 
 
@@ -65,6 +66,29 @@ def _remove_tags_region(args: Tuple[Set[str], Path, Path, str]) -> int:
     return remove_tags_region(*args)
 
 
+# Data version difference between 1.17.1 and 1.18 snapshots+
+NEW_DATA_VERSION = 2800
+
+
+# Override of the required anvil library for newer verison of minecraft.
+def new_chunk_init(self, nbt_data: nbt.NBTFile):
+  """ Override of anvil chunk constructor for version 1.18+ """
+  try:
+      self.version = nbt_data['DataVersion'].value
+  except KeyError:
+      self.version = None
+
+  if self.version > 2800:
+    self.data = nbt_data
+  else:
+    self.data = nbt_data['Level']
+    self.tile_entities = self.data['TileEntities']
+    
+  self.x = self.data['xPos'].value
+  self.z = self.data['zPos'].value
+anvil.Chunk.__init__ = new_chunk_init
+
+
 def remove_tags_region(to_replace: Set[str], src: Path, dst: Path, mode: str) -> int:
     """Remove tags in to_replace from the src region
     Write changes to dst/src.name"""
@@ -72,6 +96,21 @@ def remove_tags_region(to_replace: Set[str], src: Path, dst: Path, mode: str) ->
     count: int = 0
 
     print("Checking file:", src)
+    
+    # Check if it's even an .mca file
+    print(src)
+    if len(str(src)) > 4:
+      if str(src)[-1:-5:-1] != "acm.":
+        print(f"{src} is not a valid region file.")
+        return 0
+    else:
+      print(f"{src} is not a valid file.")
+      return 0
+
+    # Check if file isn't empty
+    if os.path.getsize(src) == 0:
+      print(f"{src} is empty.")
+      return 0
 
     coords = src.name.split(".")
     region = anvil.Region.from_file(str(src.resolve()))
@@ -92,20 +131,36 @@ def remove_tags_region(to_replace: Set[str], src: Path, dst: Path, mode: str) ->
         if region.chunk_location(chunk_x, chunk_z) != (0, 0):
             data = region.chunk_data(chunk_x, chunk_z)
             data_copy = region.chunk_data(chunk_x, chunk_z)
+            
+            if int(data["DataVersion"].value) > NEW_DATA_VERSION: # 1.18+     
+              if hasattr(data["structures"]["starts"], 'tags'):
+                  for tag in data["structures"]["starts"].tags:
+                      if check_tag(tag):
+                          del data_copy["structures"]["starts"][tag.name]
+                          count += 1
+                          removed_tags.add(tag.name)
 
-            if hasattr(data["Level"]["Structures"]["Starts"], 'tags'):
-                for tag in data["Level"]["Structures"]["Starts"].tags:
-                    if check_tag(tag):
-                        del data_copy["Level"]["Structures"]["Starts"][tag.name]
-                        count += 1
-                        removed_tags.add(tag.name)
+              if hasattr(data["structures"]["References"], 'tags'):
+                  for tag in data["structures"]["References"].tags:
+                      if check_tag(tag):
+                          del data_copy["structures"]["References"][tag.name]
+                          count += 1
+                          removed_tags.add(tag.name)
+            else:
+              if hasattr(data["Level"]["Structures"]["Starts"], 'tags'):
+                  for tag in data["Level"]["Structures"]["Starts"].tags:
+                      if check_tag(tag):
+                          del data_copy["Level"]["Structures"]["Starts"][tag.name]
+                          count += 1
+                          removed_tags.add(tag.name)
 
-            if hasattr(data["Level"]["Structures"]["References"], 'tags'):
-                for tag in data["Level"]["Structures"]["References"].tags:
-                    if check_tag(tag):
-                        del data_copy["Level"]["Structures"]["References"][tag.name]
-                        count += 1
-                        removed_tags.add(tag.name)
+              if hasattr(data["Level"]["Structures"]["References"], 'tags'):
+                  for tag in data["Level"]["Structures"]["References"].tags:
+                      if check_tag(tag):
+                          del data_copy["Level"]["Structures"]["References"][tag.name]
+                          count += 1
+                          removed_tags.add(tag.name)
+
 
             # Add the modified chunk data to the new region
             new_region.add_chunk(anvil.Chunk(data_copy))
