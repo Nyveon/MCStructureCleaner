@@ -47,7 +47,7 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 - ✅ Auto-removal of all non vanilla structures mode. (Implemented in 1.4)
 - 🔲 All dimensions at once mode
 - ✅ Checking for corrupted files (Thanks @lleheny0!)
-- ❓ 1.18 support (Included but needs mroe testing)
+- ❓ 1.18 support (Included but needs more testing)
 
 # Notes:
 
