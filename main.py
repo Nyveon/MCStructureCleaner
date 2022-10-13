@@ -222,8 +222,8 @@ def main() -> None:
     args = get_args()
 
     to_replace = set(args.tag)
-    new_region = Path(args.output + "/" + "new_" + args.region + "region")
-    world_region = Path(args.path + "/" + args.region + "/region")
+    new_region = Path(f"{args.output}/new_region{args.region}")
+    world_region = Path(f"{args.path}/{args.region}/region")
     num_processes = args.jobs
 
     sep()
