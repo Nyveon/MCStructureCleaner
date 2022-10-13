@@ -17,8 +17,8 @@ Project structure:
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from multiprocessing import cpu_count
-from mcstructurecleaner.constants import SEP
-from mcstructurecleaner.remove_tags import remove_tags
+from mcsc.constants import SEP
+from mcsc.remove_tags import remove_tags
 
 VERSION = "1.6"
 

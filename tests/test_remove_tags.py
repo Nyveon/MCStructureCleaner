@@ -6,10 +6,12 @@ Tests tag removal logic for 1.15.2 worlds
 import pytest
 import filecmp
 from pathlib import Path
-from mcstructurecleaner.remove_tags import remove_tags
-from mcstructurecleaner.constants import VANILLA_STRUCTURES as VS
+from mcsc.remove_tags import remove_tags
+from mcsc.constants import VANILLA_STRUCTURES as VS
 from multiprocessing import cpu_count
 from tests.test_helpers import to_file_set
+
+TEST_DIR = "tests/data"
 
 TS = [
     "repurposed_structures:mineshaft_icy",
@@ -19,15 +21,6 @@ TS = [
 DIMENSIONS = ["region", "DIM1/region", "DIM-1/region"]
 
 
-@pytest.mark.parametrize(
-    "version,region,mode,tags",
-    [
-        ("1.15.2", "region", "purge", VS),
-        ("1.15.2", "DIM1/region", "purge", VS),
-        ("1.15.2", "DIM-1/region", "purge", VS),
-        #("1.15.2", "region", "remove", TS),
-    ]
-    )
 def remove_tags_test(version: str, region: str, mode: str,
                      tags: list, tmp_path: Path) -> None:
     """
@@ -35,10 +28,10 @@ def remove_tags_test(version: str, region: str, mode: str,
     """
     jobs = cpu_count() // 2
 
-    input_files = Path(f"test_files/{version}/input")
+    input_files = Path(f"{TEST_DIR}/{version}/input")
     assert input_files.exists(), f"{input_files} does not exist"
 
-    target_files = Path(f"test_files/{version}/expected_{mode}")
+    target_files = Path(f"{TEST_DIR}/{version}/expected_{mode}")
     assert target_files.exists(), f"{target_files} does not exist"
 
     region_files = to_file_set(f"{input_files}/{region}")
@@ -70,8 +63,25 @@ def remove_tags_test(version: str, region: str, mode: str,
 
 @pytest.mark.parametrize("dimension", DIMENSIONS)
 def test_rt_purge_1_15_2(dimension: str, tmp_path: Path) -> None:
+    """
+    Test purge mode for 1.15.2
+    Expected behaviour: All modded tags are removed
+    """
     remove_tags_test("1.15.2", dimension, "purge", VS, tmp_path)
 
 
-#def test_rt_remove_1_15_2(dimension: str, tmp_path: Path) -> None:
+#@pytest.mark.parametrize("dimension", DIMENSIONS)
+#def test_rt_none_1_15_2(dimension: str, tmp_path: Path) -> None:
+    """
+    Test no tag input for 1.15.2
+    Expected behaviour: No files should be changed
+    """
+    #remove_tags_test("1.15.2", dimension, "none", [], tmp_path)
+# todo
+
+# def test_rt_remove_1_15_2(dimension: str, tmp_path: Path) -> None:
+#    """
+#    Test remove mode for 1.15.2
+#    Expected behaviour: Only tags in TS are removed
+#    """
 #    remove_tags_test("1.15.2", "region", "remove", TS, tmp_path)

@@ -10,7 +10,7 @@ import itertools as it
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Set, Tuple
-from mcstructurecleaner.constants import VANILLA_STRUCTURES, SEP
+from mcsc.constants import VANILLA_STRUCTURES, SEP
 
 
 def _remove_tags_region_a(args: Tuple[Set[str], Path, Path, str]) -> int:
