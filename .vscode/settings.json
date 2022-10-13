@@ -1,5 +1,15 @@
 {
     "python.linting.banditEnabled": false,
     "python.linting.flake8Enabled": true,
-    "python.linting.enabled": true
+    "python.linting.enabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+        "-v",
+        "--cov=.",
+        "tests/",
+        "--cov-report",
+        "xml:cov.xml",
+        "--pdb",
+    ]
 }

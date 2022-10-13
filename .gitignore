@@ -133,3 +133,4 @@ dmypy.json
 /world/
 
 .idea/
+cov.xml

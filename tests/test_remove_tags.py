@@ -70,18 +70,10 @@ def test_rt_purge_1_15_2(dimension: str, tmp_path: Path) -> None:
     remove_tags_test("1.15.2", dimension, "purge", VS, tmp_path)
 
 
-#@pytest.mark.parametrize("dimension", DIMENSIONS)
-#def test_rt_none_1_15_2(dimension: str, tmp_path: Path) -> None:
+@pytest.mark.parametrize("dimension", DIMENSIONS)
+def test_rt_remove_1_15_2(dimension: str, tmp_path: Path) -> None:
     """
-    Test no tag input for 1.15.2
-    Expected behaviour: No files should be changed
+    Test remove mode for 1.15.2
+    Expected behaviour: Only tags in TS are removed
     """
-    #remove_tags_test("1.15.2", dimension, "none", [], tmp_path)
-# todo
-
-# def test_rt_remove_1_15_2(dimension: str, tmp_path: Path) -> None:
-#    """
-#    Test remove mode for 1.15.2
-#    Expected behaviour: Only tags in TS are removed
-#    """
-#    remove_tags_test("1.15.2", "region", "remove", TS, tmp_path)
+    remove_tags_test("1.15.2", "region", "remove", TS, tmp_path)
