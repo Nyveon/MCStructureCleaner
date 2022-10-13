@@ -16,13 +16,11 @@ Project structure:
 
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-from remove_tags import remove_tags
 from multiprocessing import cpu_count
-
+from mcstructurecleaner.constants import SEP
+from mcstructurecleaner.remove_tags import remove_tags
 
 VERSION = "1.6"
-NEW_DATA_VERSION = 2800  # 1.17.1 vs 1.18
-SEP = "-" * 32
 
 
 # Environment

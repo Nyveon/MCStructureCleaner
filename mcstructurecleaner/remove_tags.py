@@ -10,29 +10,7 @@ import itertools as it
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Set, Tuple
-
-SEP = "-" * 32
-
-VANILLA_STRUCTURES = {
-    "bastion_remnant",
-    "buried_treasure",
-    "desert_pyramid",
-    "endcity",
-    "fortress",
-    "igloo",
-    "jungle_pyramid",
-    "mansion",
-    "mineshaft",
-    "monument",
-    "nether_fossil",
-    "ocean_ruin",
-    "pillager_outpost",
-    "ruined_portal",
-    "shipwreck",
-    "stronghold",
-    "swamp_hut",
-    "village"
-}
+from mcstructurecleaner.constants import VANILLA_STRUCTURES, SEP
 
 
 def _remove_tags_region_a(args: Tuple[Set[str], Path, Path, str]) -> int:
