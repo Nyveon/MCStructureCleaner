@@ -91,7 +91,7 @@ def remove_tags_region(to_replace: Set[str],
     # Lambda function for checking if a tag is valid
     if mode == "purge":
         def check_tag(_tag):
-            return _tag.name not in VANILLA_STRUCTURES
+            return _tag.name.lower() not in VANILLA_STRUCTURES
     else:
         def check_tag(_tag):
             return _tag.name in to_replace
@@ -186,19 +186,34 @@ def get_args() -> Namespace:
             NBTExplorer to find the name), default is an empty \
             string (for use in purge mode)"
     jobs_help = f"The number of processes to run (default: {jobs})"
-    world_help = "The name of the world you wish to process (default: 'world')"
+    path_help = "The path of the world you wish to process (default: 'world')"
+    output_help = "The path where you wish to save the output (default: './'"
     region_help = "The name of the region folder (dimension) \
             you wish to process (default: "")"
 
     parser = ArgumentParser(prog=prog_msg)
 
-    parser.add_argument("-t", "--tag", type=str,
-                        help=tag_help, default="", nargs="*")
-    parser.add_argument("-j", "--jobs", type=int, help=jobs_help, default=jobs)
-    parser.add_argument("-w", "--world", type=str,
-                        help=world_help, default="world")
-    parser.add_argument("-r", "--region", type=str,
-                        help=region_help, default="")
+    parser.add_argument("-t", "--tag",
+                        type=str,
+                        help=tag_help,
+                        default="",
+                        nargs="*")
+    parser.add_argument("-j", "--jobs",
+                        type=int,
+                        help=jobs_help,
+                        default=jobs)
+    parser.add_argument("-p", "--path",
+                        type=str,
+                        help=path_help,
+                        default="world")
+    parser.add_argument("-o", "--output",
+                        type=str,
+                        help=output_help,
+                        default="./")
+    parser.add_argument("-r", "--region",
+                        type=str,
+                        help=region_help,
+                        default="")
 
     return parser.parse_args()
 
@@ -207,8 +222,8 @@ def main() -> None:
     args = get_args()
 
     to_replace = set(args.tag)
-    new_region = Path("new_" + args.region + "region")
-    world_region = Path(args.world + "/" + args.region + "/region")
+    new_region = Path(args.output + "/" + "new_" + args.region + "region")
+    world_region = Path(args.path + "/" + args.region + "/region")
     num_processes = args.jobs
 
     sep()
