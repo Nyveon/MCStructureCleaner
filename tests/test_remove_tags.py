@@ -6,23 +6,23 @@ Tests tag removal logic for 1.15.2 worlds
 import pytest
 import filecmp
 from pathlib import Path
-from mcsc.remove_tags import remove_tags
-from mcsc.constants import VANILLA_STRUCTURES as VS
+from structurecleaner.remove_tags import remove_tags
+from structurecleaner.constants import VANILLA_STRUCTURES as VS
 from multiprocessing import cpu_count
 from tests.test_helpers import to_file_set
 
 TEST_DIR = "tests/data"
 
-TS = [
+TS = {
     "repurposed_structures:mineshaft_icy",
     "repurposed_structures:mineshaft_end"
-]
+}
 
 DIMENSIONS = ["region", "DIM1/region", "DIM-1/region"]
 
 
 def remove_tags_test(version: str, region: str, mode: str,
-                     tags: list, tmp_path: Path) -> None:
+                     tags: set, tmp_path: Path) -> None:
     """
     General test for removing tags
     """

@@ -8,7 +8,11 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 
 ## Usage
 
-⚠ Warning: NOT WORKING ON SOME 1.18 worlds, further testing in progress.
+### GUI (recommended)
+
+Upcoming.
+
+### Command Line
 
 1. Install the requirements: [Python 3.x](https://www.python.org/) and [Matcool's Anvil Parser](https://github.com/matcool/anvil-parser).
 2. Download the [latest release](https://github.com/Nyveon/MCStructureCleaner/releases/) and place `main.py` in the same directory as your world folder
@@ -42,24 +46,48 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 2. Structure specific effects that remained after uninstalling the mod will no longer work for the removed structures (This includes locating structures and custom loot tables).
 3. If you have corrupted region files (With the wrong data format, or a size of 0b) the script may crash.
 
-## Todo
+## Developers
 
-- ✅ More detailed output.
-- ✅ Multiple tag input. (Implemented in 1.4)
-- ✅ Multithreading. (Thanks DemonInTheCloset!, now 2.8x faster)
-- ✅ Command line arguments. (Thanks @DemonInTheCloset!)
-- ✅ Selection of world/dimensions.
-- 🔲 Allow for picking up progress where program left off.
-- 🔲 Checking disk space available.
-- ✅ Auto-removal of all non vanilla structures mode. (Implemented in 1.4)
-- 🔲 All dimensions at once mode
-- ✅ Checking for corrupted files (Thanks @lleheny0!)
-- ❓ 1.18 support (Included but needs more testing)
+### Installation & Testing
+
+#### Installation
+
+Clone the repository, then install requirements:
+
+```bash
+pip install -r requirements.txt
+pip install -r devrequirements.txt
+```
+
+#### Linting and style
+
+Most standard linters are fine as long as the code is readable, the project files are currently linted with [flake8](https://flake8.pycqa.org/en/latest/).
+
+#### Running tests
+
+- **VSCode**: the testing environment is already configured, simply press the `Run Tests` button added by the [official Python Extension](https://code.visualstudio.com/docs/python/testing).
+- **Command Line**:
+
+```bash
+pytest -v --cov=. tests/ --cov-report xml:cov.xml --pdb
+```
+
+Expected coverage
+TODO
+
+#### Making tests
+
+TODO
+
+#### Todo & Contribution
+
+Contributions are always welcome! See the [issues page](https://github.com/Nyveon/MCStructureCleaner/issues) for ideas, or feel free to suggest your own ideas.
 
 ## Notes
 
-- Confirmed working for world between version 1.11 and 1.17. 1.18 Support is included, but may not be perfect (please report any issues!)
 - Feel free to message me on discord (Nyveon#9999) or twitter (Nyveon) if you need help using it.
-- Why did we make this? To save our own SMP world after uninstalling some mods and getting the MC-194811 error. We had spent a lot of time on it, and didn't want anyone else to have to lose their world to the same bug.
+- **Why did we make this?** To save our own SMP world after uninstalling some mods and getting the MC-194811 error. We had spent a lot of time on it, and didn't want anyone else to have to lose their world to the same bug.
+- Thanks to @DemonInTheCloset for contributing to multiprocessing and command line arugments.
+- Thanks to @lleheny0 for contributing to file validation.
 
 ![MC Structure Cleaner](images/mc-structure-cleaner.png)

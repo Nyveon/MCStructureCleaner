@@ -17,8 +17,8 @@ Project structure:
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from multiprocessing import cpu_count
-from mcsc.constants import SEP
-from mcsc.remove_tags import remove_tags
+from structurecleaner.constants import SEP
+from structurecleaner.remove_tags import remove_tags
 
 VERSION = "1.6"
 
@@ -82,17 +82,17 @@ def get_args() -> Namespace:
 
 def process_args(args: Namespace):
     """Process CLI Arguments"""
-    processed = []
-    processed.append(set(args.tag))
-    processed.append(Path(f"{args.output}/new_region{args.region}"))
-    processed.append(Path(f"{args.path}/{args.region}/region"))
-    processed.append(args.jobs)
-    return processed
+    return (
+        set(args.tag),
+        Path(f"{args.output}/new_region{args.region}"),
+        Path(f"{args.path}/{args.region}/region"),
+        args.jobs
+    )
 
 
 def main() -> None:
-    args = process_args(get_args())
-    to_replace, new_region, world_region, num_processes = args
+    to_replace, new_region, \
+        world_region, num_processes = process_args(get_args())
 
     print(SEP)
 

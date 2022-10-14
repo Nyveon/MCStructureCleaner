@@ -5,12 +5,12 @@ Tag removal logic
 
 import time
 import os
-import anvil
+import anvil  # type: ignore
 import itertools as it
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Set, Tuple
-from mcsc.constants import VANILLA_STRUCTURES, SEP
+from structurecleaner.constants import VANILLA_STRUCTURES, SEP
 
 
 def _remove_tags_region_a(args: Tuple[Set[str], Path, Path, str]) -> int:
