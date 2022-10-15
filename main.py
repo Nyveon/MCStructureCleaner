@@ -1,212 +1,71 @@
 """
-MC Structure cleaner
+MC Structure Cleaner
 By: Nyveon and DemonInTheCloset
+Thanks: lleheny0
+Special thanks: panchito, tomimi, puntito,
+and everyone who has reported bugs and given feedback.
 
-v: 1.4
 Modded structure cleaner for minecraft. Removes all references to non-existent
 structures to allow for clean error logs and chunk saving.
+
+Project structure:
+    main.py - Command Line Interface
+    remove_tags.py - Main logic
+    tests - Unit tests
 """
 
-# Using Python 3.9 annotations
-from __future__ import annotations
-
-# Imports
-import time  # for progress messages
-
-# Efficient iteration
-import itertools as it
-
-# Argument parsing
 from argparse import ArgumentParser, Namespace
-
-# Filesystem interaction
 from pathlib import Path
-import os
+from multiprocessing import cpu_count
+from structurecleaner.constants import SEP
+from structurecleaner.remove_tags import remove_tags
+from typing import Tuple
+try:
+    from gooey import Gooey, GooeyParser  # type: ignore
+except ImportError:
+    Gooey = None
 
-# Multiprocessing
-from multiprocessing import Pool, cpu_count
+# Information
+NAME = "MC Structure Cleaner"
+VERSION = "1.6"
+DESCRIPTION = f"By: Nyveon\nVersion: {VERSION}"
+HELP_JOBS = ("The number of processes to run. "
+             "Going over your CPU count may will "
+             "slow things down. The default is recommendable")
+HELP_TAG = ("The EXACT structure tag name you want removed "
+            "You can input tags separated by spaces "
+            "(You can use NBTExplorer to find the name) "
+            "Leave blank to remove ALL NON-VANILLA structures")
+HELP_PATH = "The path of the world you wish to process"
+HELP_OUTPUT = "The path of the folder you wish to save the new region files to"
+HELP_REGION = ("The name of the region folder (dimension) "
+               " | Overworld: (blank) | Nether: DIM-1 | End: DIM1")
 
-import anvil  # anvil-parser by matcool
-from typing import Set, Tuple
-
-VERSION = "1.5"
-
-# Configuration variables and constants
-# Gracias panchito, tomimi y puntito c:
-VANILLA_STRUCTURES = {
-    "bastion_remnant",
-    "buried_treasure",
-    "desert_pyramid",
-    "endcity",
-    "fortress",
-    "igloo",
-    "jungle_pyramid",
-    "mansion",
-    "mineshaft",
-    "monument",
-    "nether_fossil",
-    "ocean_ruin",
-    "pillager_outpost",
-    "ruined_portal",
-    "shipwreck",
-    "stronghold",
-    "swamp_hut",
-    "village",
-}
-
-
-# Print separator
-def sep():
-    """Print separator line"""
-    print("----------------------------------")
-
-
-# Removing Tags
-def _remove_tags_region(args: Tuple[Set[str], Path, Path, str]) -> int:
-    return remove_tags_region(*args)
-
-
-# Data version difference between 1.17.1 and 1.18 snapshots+
-NEW_DATA_VERSION = 2800
-
-
-# Override of the required anvil library for newer verison of minecraft.
-def new_chunk_init(self, nbt_data: nbt.NBTFile):
-  """ Override of anvil chunk constructor for version 1.18+ """
-  try:
-      self.version = nbt_data['DataVersion'].value
-  except KeyError:
-      self.version = None
-
-  if self.version > 2800:
-    self.data = nbt_data
-  else:
-    self.data = nbt_data['Level']
-    self.tile_entities = self.data['TileEntities']
-    
-  self.x = self.data['xPos'].value
-  self.z = self.data['zPos'].value
-anvil.Chunk.__init__ = new_chunk_init
-
-
-def remove_tags_region(to_replace: Set[str], src: Path, dst: Path, mode: str) -> int:
-    """Remove tags in to_replace from the src region
-    Write changes to dst/src.name"""
-    start: float = time.perf_counter()
-    count: int = 0
-
-    print("Checking file:", src)
-    
-    # Check if it's even an .mca file
-    print(src)
-    if len(str(src)) > 4:
-      if str(src)[-1:-5:-1] != "acm.":
-        print(f"{src} is not a valid region file.")
-        return 0
-    else:
-      print(f"{src} is not a valid file.")
-      return 0
-
-    # Check if file isn't empty
-    if os.path.getsize(src) == 0:
-      print(f"{src} is empty.")
-      return 0
-
-    coords = src.name.split(".")
-    region = anvil.Region.from_file(str(src.resolve()))
-    new_region = anvil.EmptyRegion(int(coords[1]), int(coords[2]))
-    removed_tags = set()
-
-    # Lambda function for checking if a tag is valid
-    if mode == "purge":
-        def check_tag(_tag):
-            return _tag.name not in VANILLA_STRUCTURES
-    else:
-        def check_tag(_tag):
-            return _tag.name in to_replace
-
-    # Check chunks
-    for chunk_x, chunk_z in it.product(range(32), repeat=2):
-        # Chunk Exists
-        if region.chunk_location(chunk_x, chunk_z) != (0, 0):
-            data = region.chunk_data(chunk_x, chunk_z)
-            data_copy = region.chunk_data(chunk_x, chunk_z)
-            
-            if int(data["DataVersion"].value) > NEW_DATA_VERSION: # 1.18+     
-              if hasattr(data["structures"]["starts"], 'tags'):
-                  for tag in data["structures"]["starts"].tags:
-                      if check_tag(tag):
-                          del data_copy["structures"]["starts"][tag.name]
-                          count += 1
-                          removed_tags.add(tag.name)
-
-              if hasattr(data["structures"]["References"], 'tags'):
-                  for tag in data["structures"]["References"].tags:
-                      if check_tag(tag):
-                          del data_copy["structures"]["References"][tag.name]
-                          count += 1
-                          removed_tags.add(tag.name)
-            else:
-              if hasattr(data["Level"]["Structures"]["Starts"], 'tags'):
-                  for tag in data["Level"]["Structures"]["Starts"].tags:
-                      if check_tag(tag):
-                          del data_copy["Level"]["Structures"]["Starts"][tag.name]
-                          count += 1
-                          removed_tags.add(tag.name)
-
-              if hasattr(data["Level"]["Structures"]["References"], 'tags'):
-                  for tag in data["Level"]["Structures"]["References"].tags:
-                      if check_tag(tag):
-                          del data_copy["Level"]["Structures"]["References"][tag.name]
-                          count += 1
-                          removed_tags.add(tag.name)
-
-
-            # Add the modified chunk data to the new region
-            new_region.add_chunk(anvil.Chunk(data_copy))
-
-    # Save Region
-    new_region.save(str((dst / src.name).resolve()))
-
-    end: float = time.perf_counter()
-    print(f"File {src}: {count} instances of tags removed in {end - start:.3f} s")
-
-    # Output for purge mode (removed non vanilla tags per file)
-    if mode == "purge" and len(removed_tags) != 0:
-        print("Non-vanilla tags found:")
-        print(removed_tags)
-        sep()
-
-    return count
-
-
-def remove_tags(tags: Set[str], src: Path, dst: Path, jobs: int, mode: str) -> None:
-    """Removes tags from src region files and writes them to dst"""
-    with Pool(processes=jobs) as pool:
-        start = time.perf_counter()
-
-        data = zip(it.repeat(tags), src.iterdir(), it.repeat(dst), it.repeat(mode))
-        count = sum(pool.map(_remove_tags_region, data))
-
-        end = time.perf_counter()
-
-        sep()
-        if mode == "purge":
-            print(f"Done!\nRemoved {count} instances of non-vanilla tags")
-        else:
-            print(f"Done!\nRemoved {count} instances of tags: {tags}")
-
-        print(f"Took {end - start:.3f} seconds")
+# Configuration
+DEFAULT_PATH = "world"
+DEFAULT_OUTPUT = "./"
 
 
 # Environment
 def setup_environment(new_region: Path) -> bool:
-    """Try to create new_region folder"""
+    """Try to create new_region folder
+    This is the folder where the new region files will be saved
+
+    Args:
+        new_region (Path): Path to new region folder
+
+    Returns:
+        bool: True if successful, False otherwise
+    """
     if new_region.exists():
-        print(f"{new_region.resolve()} exists, this may cause problems")
-        proceed = input("Do you want to proceed regardless? [y/N] ")
-        sep()
-        return proceed.startswith("y")
+        if Gooey:
+            raise FileExistsError(f"{new_region} already exists, please delete"
+                                  " it or choose a different folder.")
+        else:
+            print(f"{new_region.resolve()} exists, this may cause problems")
+            proceed = input("Do you want to proceed regardless? [y/N] ")
+            print(SEP)
+            return proceed.startswith("y")
 
     new_region.mkdir()
     print(f"Saving newly generated region files to {new_region.resolve()}")
@@ -214,74 +73,184 @@ def setup_environment(new_region: Path) -> bool:
     return True
 
 
-#  CLI
-def get_args() -> Namespace:
-    """Get CLI Arguments"""
-    jobs = cpu_count() // 2
+def get_default_jobs() -> int:
+    """Get default number of jobs
 
-    prog_msg = f"MC Structure cleaner\nBy: Nyveon\nVersion: {VERSION}"
-    tag_help = "The EXACT structure tag name you want removed (Use NBTExplorer\
-            to find the name), default is an empty string (for use in purge mode)"
-    jobs_help = f"The number of processes to run (default: {jobs})"
-    world_help = f"The name of the world you wish to process (default: \"world\")"
-    region_help = f"The name of the region folder (dimension) you wish to process (default: "")"
+    Returns:
+        int: The number of CPU cores in the device
+    """
+    return cpu_count() // 2
 
-    parser = ArgumentParser(prog=prog_msg)
 
-    parser.add_argument("-t", "--tag", type=str, help=tag_help, default="", nargs="*")
-    parser.add_argument("-j", "--jobs", type=int, help=jobs_help, default=jobs)
-    parser.add_argument("-w", "--world", type=str, help=world_help, default="world")
-    parser.add_argument("-r", "--region", type=str, help=region_help, default="")
+def get_cli_args() -> Namespace:
+    """Get CLI Arguments
+
+    Returns:
+        Namespace: The parsed arguments
+    """
+    jobs = get_default_jobs()
+    jobs_help = f"{HELP_JOBS} (default: {jobs})"
+    path_help = f"{HELP_PATH} (default: '{DEFAULT_PATH}')"
+    output_help = f"{HELP_OUTPUT} (default: '{DEFAULT_OUTPUT}')"
+
+    parser = ArgumentParser(prog=f"{NAME}\n{DESCRIPTION}")
+
+    parser.add_argument("-t", "--tag",
+                        type=str,
+                        help=HELP_TAG,
+                        default="",
+                        nargs="*")
+    parser.add_argument("-j", "--jobs",
+                        type=int,
+                        help=jobs_help,
+                        default=jobs)
+    parser.add_argument("-p", "--path",
+                        type=str,
+                        help=path_help,
+                        default="world")
+    parser.add_argument("-o", "--output",
+                        type=str,
+                        help=output_help,
+                        default="./")
+    parser.add_argument("-r", "--region",
+                        type=str,
+                        help=HELP_REGION,
+                        default="")
 
     return parser.parse_args()
 
 
-def _main() -> None:
-    args = get_args()
+# GUI (Only if Gooey is installed)
+if Gooey:
+    @Gooey(
+        program_name=NAME,
+        program_description=DESCRIPTION,
+        header_bg_color="#6dd684",
+        default_size=(610, 610),
+        image_dir="./images",
+        menu=[{
+            "name": "About",
+            "items": [{
+                    "type": "AboutDialog",
+                    "menuTitle": "About",
+                    "name": NAME,
+                    "description": DESCRIPTION,
+                    "version": VERSION,
+                    "website": "https://github.com/Nyveon/MCStructureCleaner",
+            }]
+        },
+            {
+                "name": "Help",
+                "items": [{
+                    "type": "Link",
+                    "menuTitle": "Information",
+                    "url": "https://github.com/Nyveon/MCStructureCleaner"
+                }, {
+                    "type": "Link",
+                    "menuTitle": "Report an issue",
+                    "url":
+                        "https://github.com/Nyveon/MCStructureCleaner/issues"
+                }]
+        }]
 
-    to_replace = set(args.tag)
-    new_region = Path("new_" + args.region + "region")
-    world_region = Path(args.world + "/" + args.region + "/region")
-    num_processes = args.jobs
+    )
+    def get_gui_args() -> Namespace:
+        """Get GUI Arguments
 
-    sep()
+        Returns:
+            Namespace: The parsed arguments
+        """
+        jobs = get_default_jobs()
+        parser = GooeyParser()
+
+        parser.add_argument("-t", "--tag",
+                            type=str,
+                            help=HELP_TAG,
+                            default="",
+                            nargs="*")
+        parser.add_argument("-j", "--jobs",
+                            type=int,
+                            help=HELP_JOBS,
+                            default=jobs,
+                            widget="IntegerField",
+                            gooey_options={
+                                'min': 1,
+                                'max': jobs*2
+                            })
+        parser.add_argument("-p", "--path",
+                            type=str,
+                            help=HELP_PATH,
+                            default="./world",
+                            widget="DirChooser")
+        parser.add_argument("-o", "--output",
+                            type=str,
+                            help=HELP_OUTPUT,
+                            default="./",
+                            widget="DirChooser")
+        parser.add_argument("-r", "--region",
+                            type=str,
+                            help=HELP_REGION,
+                            default="")
+
+        return parser.parse_args()
+
+
+def process_args(args: Namespace) -> Tuple[set, Path, Path, int]:
+    """Process CLI or GUI Arguments
+
+    Args:
+        args (Namespace): Parsed CLI or GUI arguments
+
+    Returns:
+        Tuple[set, Path, Path, int]: Processed arguments:
+            1. A set of tags (strings)
+            2. The output path
+            3. The input path
+            4. The job
+    """
+    return (
+        set(args.tag),
+        Path(f"{args.output}/new_region{args.region}"),
+        Path(f"{args.path}/{args.region}/region"),
+        args.jobs
+    )
+
+
+def main() -> None:
+    """The main program"""
+    # CLI or GUI arguments
+    args = get_gui_args() if Gooey else get_cli_args()
+    to_replace, new_region, \
+        world_region, num_processes = process_args(args)
 
     # Force purge mode if no tag is given, otherwise normal.
-    mode = "normal"
-    if args.tag == "":
+    mode = "purge" if not to_replace else "normal"
+    if mode == "purge":
         print("No tag given, will run in purge mode.")
-        mode = "purge"
+        print(f"Replacing all non-vanilla structures in \
+            all region files in {world_region}.")
     else:
         print("Tag(s) given, will run in normal mode.")
-
-    # Feedback as to what the program is about to do.
-    if mode == "normal":
         print(f"Replacing {to_replace} in all region files in {world_region}.")
-    elif mode == "purge":
-        print(f"Replacing all non-vanilla structures in all region files in {world_region}.")
-    sep()
+
+    print(SEP)
 
     # Check if world exists
     if not world_region.exists():
-        print(f"Couldn't find {world_region.resolve()}")
-        return None
+        raise FileNotFoundError(f"Couldn't find {world_region.resolve()}")
 
     # Check if output already exists
     if not setup_environment(new_region):
-        print("Aborted, nothing was done")
-        return None
+        raise SystemExit("Aborted, nothing was done")
 
     n_to_process = len(list(world_region.iterdir()))
-
     remove_tags(to_replace, world_region, new_region, num_processes, mode)
 
     # End output
-    sep()
-    print(f"Processed {n_to_process} files")
+    print(f"{SEP}\nProcessed {n_to_process} files")
     print(f"You can now replace {world_region} with {new_region}")
     return None
 
 
-# When running
 if __name__ == "__main__":
-    _main()
+    main()
