@@ -51,7 +51,7 @@ def _remove_tags_region(to_replace: Set[str], src: Path,
     new_region = anvil.EmptyRegion(int(coords[1]), int(coords[2]))
     removed_tags = set()
 
-    # Lambda function for checking if a tag is valid
+    # Function for checking if a tag is valid
     if mode == "purge":
         def check_tag(_tag):
             return _tag.name.lower() not in VANILLA_STRUCTURES
@@ -94,7 +94,7 @@ def _remove_tags_region(to_replace: Set[str], src: Path,
 
     # Output for purge mode (removed non vanilla tags per file)
     if mode == "purge" and len(removed_tags) != 0:
-        print(f"Non-vanilla tags found:\n{removed_tags}\nSEP")
+        print(f"Non-vanilla tags found:\n{removed_tags}\n{SEP}")
 
     return count
 

@@ -105,4 +105,15 @@ Contributions are always welcome! See the [issues page](https://github.com/Nyveo
 - Thanks to @DemonInTheCloset for contributing to multiprocessing and command line arugments.
 - Thanks to @lleheny0 for contributing to file validation.
 
+### Versions tested
+
+- Pre 1.12: The bug does not apply to these versions.
+- 1.13.x: 🟡 Manually
+- 1.14.x: 🟠 Untested, but should work
+- 1.15.x: 🟢 Automatically
+- 1.16.x: 🟡 Manually
+- 1.17.x: 🟠 Untested, but should work
+- 1.18.x: 🔴 Untested
+- 1.19.x: ❔ The bug might be fixed in this version. If anyone has information, please let me know c:
+
 ![MC Structure Cleaner](images/mc-structure-cleaner.png)
