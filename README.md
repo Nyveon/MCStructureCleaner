@@ -20,7 +20,7 @@ Upcoming.
 3. Run main.py with any of the following configuration properties. I recommend using [NBTExplorer](https://github.com/jaquadro/NBTExplorer) to find the name, or just letting the program fix all non-vanilla names by not inputting any tag.
    - `-h` For help on command line arguments.
    - `-t` For the tag you want removed, in quotes. Leave empty if you wish to remove ALL NON-VANILLA TAGS.
-   - `-j` For the number of threads you want to run it on. Default: 2 x CPU Cores.
+   - `-j` For the number of threads you want to run it on. Default: 2 x CPU logical processors.
    - `-w` For the name of the world you want to process. Default: "world".
    - `-r` For the name of the sub-folder (dimension) in the world. Default: "".
    - **Example 1:** This command will delete all non-vanilla structures (defined up to 1.17) in the overworld of the world "SMP"
@@ -69,15 +69,17 @@ Most standard linters are fine as long as the code is readable, the project file
 - **Command Line**:
 
 ```bash
-pytest -v --cov=. tests/ --cov-report xml:cov.xml --pdb
+pytest -v --cov=. tests/ --cov-report xml:cov.xml
 ```
 
-Expected coverage
-TODO
+- **Expected coverage:** The `structurecleaner` folder should have 100% coverage.
 
-#### Making tests
+#### Making your own tests
 
-TODO
+1. Generate your expected input files and output files. This can be done easily by running the program on a world, and then copying the region folder to the `tests` folder, and renaming it to `expected_input` and `expected_output` respectively. However, for new formats it is important to thoroughly check the output or make it by hand with NBTExplorer!
+2. Place them in the directory `tests/data/X` where X is the name of the test. (See other tests for reference)
+3. Use `remove_tags_test` in the `tests` directory to create your test. (See other tests for reference)
+4. Run pytest. The coverage should be the same as before, and the test should pass.
 
 #### Todo & Contribution
 
