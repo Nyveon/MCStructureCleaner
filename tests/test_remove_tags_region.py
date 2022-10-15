@@ -4,6 +4,7 @@ Tests tag removal logic for individual region files.
 Uses a custom 1.15.2 region file
 """
 
+import filecmp
 import pytest
 from structurecleaner.remove_tags import (
     _remove_tags_region,
@@ -43,20 +44,26 @@ def test_too_short(tmp_path: Path) -> None:
 
 def test_mca_purge_empty(tmp_path: Path) -> None:
     test_file = Path(f"{test_data_path}/input/{file_name}")
+    target_file = Path(f"{test_data_path}/output_purge/{file_name}")
     result = _remove_tags_region(set(), test_file, tmp_path, "purge")
     assert result != 0
+    assert filecmp.cmp((tmp_path / file_name), target_file)
 
 
 def test_mca_remove_empty(tmp_path: Path) -> None:
     test_file = Path(f"{test_data_path}/input/{file_name}")
+    target_file = Path(f"{test_data_path}/output_remove_0/{file_name}")
     result = _remove_tags_region(set(), test_file, tmp_path, "remove")
     assert result == 0
+    assert filecmp.cmp((tmp_path / file_name), target_file)
 
 
 def test_mca_remove(tmp_path: Path) -> None:
     test_file = Path(f"{test_data_path}/input/{file_name}")
+    target_file = Path(f"{test_data_path}/output_remove/{file_name}")
     result = _remove_tags_region(TS, test_file, tmp_path, "remove")
     assert result != 0
+    assert filecmp.cmp((tmp_path / file_name), target_file)
 
 
 def test_remove_tags_region_a(tmp_path: Path) -> None:
