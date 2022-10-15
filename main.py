@@ -32,9 +32,9 @@ DESCRIPTION = f"By: Nyveon\nVersion: {VERSION}"
 HELP_JOBS = ("The number of processes to run. "
              "Going over your CPU count may will "
              "slow things down. The default is recommendable")
-HELP_TAG = ("The EXACT structure tag name you want removed "
-            "You can input tags separated by spaces "
-            "(You can use NBTExplorer to find the name) "
+HELP_TAG = ("The EXACT structure tag you want removed. "
+            'Separate tags by spaces. Use "" if the names '
+            'have spaces. '
             "Leave blank to remove ALL NON-VANILLA structures")
 HELP_PATH = "The path of the world you wish to process"
 HELP_OUTPUT = "The path of the folder you wish to save the new region files to"

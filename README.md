@@ -8,18 +8,27 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 
 ## Installation
 
+⚠ This does not work on 1.18.x worlds. ⚠
+
 1. Install the requirements: [Python 3.x](https://www.python.org/) and [Matcool's Anvil Parser](https://github.com/matcool/anvil-parser).
 2. Download the latest release from the [releases page](https://github.com/Nyveon/MCStructureCleaner/releases) and extract it.
 
-## Usage
+## How to Use (Instructions)
 
-### GUI (recommended)
-
-1. Once installed, double click on `main.py` to run the program.
-2. You should see an interface like this.
-
-todo
-
+1. Find the names of the structure tags you want to remove. I recommend using [NBTExplorer](https://github.com/jaquadro/NBTExplorer).
+2. **Install MCStructureCleaner** then double click on `main.py` to run the program.
+3. You should see an interface like this. ![MC Structure Cleaner GUI](images/screenshot1.png)
+4. Now, you can fill out each section:
+   1. `tag`: The exact name of the structure tag you want to remove. This is case sensitive. You can input many tags at once, separated by spaces. If the names have spaces in them, you can surround them with quotes. For example, `"my structure" "another structure"`. Leave this field blank if you want to delete **ALL NON-VANILLA STRUCTURE TAGS**.
+   2. `jobs`: The number of threads you want to run it on. Default: 2 x CPU logical processors. In my experience, the default works well enough.
+   3. `path`: The path to the world folder. (The whole folder, not just the `region` folder)
+   4. `output`: The path to the output folder. This is where the cleaned `new_region` will be saved. If you leave this blank, the cleaned world will be saved in the same folder as MCStructureCleaner.
+   5. `region`: The dimension you want to clean. If you leave this **blank** it will clean the overworld. `DIM-1` is the nether, `DIM1` is the end.
+5. *For example, this input will delete all occurances of "Better Mineshaft" and of "Better Stronghold" in the world "MyWorld", in the Nether (DIM-1), using 8 threads. The world folder is located in the user's minecraft saves, and the output will be saved to the desktop.* ![MC Structure Cleaner GUI](images/screenshot2.png)
+6. Once you have filled out all the sections, click `Start` to begin the process. This may take a while, especially if you have a larger world.
+7. If there is an error, it will be displayed in the `Output` section. If there is no error, the program will say `Done!` and you can close the program.
+8. Now you may rename the output folder (called `new_region`) to `region` and **replace** the old `region` folder in your world. **Don't forget to backup your world first!**
+9. Enjoy your now working world 😊
 
 ### Command Line
 
@@ -43,7 +52,7 @@ todo
    - **Example 2:** This command will delete all occurances of "Better Mineshaft" and of "Better Stronghold" in the world "MyWorld", in the Nether (DIM-1), using 8 threads. The world folder is located in the user's minecraft saves, and the output will be saved to the desktop.
 
    ```bash
-   python main.py -t "Better Mineshaft" "Better Stronghold" -j 8 -w "My World" -r "DIM-1" -p "C:\Users\X\AppData\Roaming\.minecraft\saves\MyWorld" -o "C:\Users\X\Desktop"
+   python main.py -t "Better Mineshaft" "Better Stronghold" -j 8 -r "DIM-1" -p "C:\Users\X\AppData\Roaming\.minecraft\saves\MyWorld" -o "C:\Users\X\Desktop"
    ```
 
    If you are on windows, I recommend using PowerShell.
@@ -113,7 +122,7 @@ Contributions are always welcome! See the [issues page](https://github.com/Nyveo
 - 1.15.x: 🟢 Automatically
 - 1.16.x: 🟡 Manually
 - 1.17.x: 🟠 Untested, but should work
-- 1.18.x: 🔴 Not working.
+- 1.18.x: 🔴 Not working. anvil-parser is not compatible with 1.18.x yet.
 - 1.19.x: ❔ The bug might be fixed in this version. If anyone has information, please let me know c:
 
 ![MC Structure Cleaner](images/mc-structure-cleaner.png)
