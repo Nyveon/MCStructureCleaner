@@ -6,39 +6,52 @@ Designed to fix worlds suffering from the [[MC-194811] Missing structures will d
 
 Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to save chunk`
 
+## Installation
+
+1. Install the requirements: [Python 3.x](https://www.python.org/) and [Matcool's Anvil Parser](https://github.com/matcool/anvil-parser).
+2. Download the latest release from the [releases page](https://github.com/Nyveon/MCStructureCleaner/releases) and extract it.
+
 ## Usage
 
 ### GUI (recommended)
 
-Upcoming.
+1. Once installed, double click on `main.py` to run the program.
+2. You should see an interface like this.
+
+todo
+
 
 ### Command Line
 
-1. Install the requirements: [Python 3.x](https://www.python.org/) and [Matcool's Anvil Parser](https://github.com/matcool/anvil-parser).
-2. Download the [latest release](https://github.com/Nyveon/MCStructureCleaner/releases/) and place `main.py` in the same directory as your world folder
-   - **Example:** If it's a server: in the server folder, or if it is a singleplayer world, in the saves folder.
-3. Run main.py with any of the following configuration properties. I recommend using [NBTExplorer](https://github.com/jaquadro/NBTExplorer) to find the name, or just letting the program fix all non-vanilla names by not inputting any tag.
+<details>
+  <summary>Only recommended if the GUI does not work on your device</summary>
+
+1. Run main.py with any of the following parameters. I recommend using [NBTExplorer](https://github.com/jaquadro/NBTExplorer) to find the name, or just letting the program fix all non-vanilla names by not inputting any tag.
    - `-h` For help on command line arguments.
    - `-t` For the tag you want removed, in quotes. Leave empty if you wish to remove ALL NON-VANILLA TAGS.
    - `-j` For the number of threads you want to run it on. Default: 2 x CPU logical processors.
    - `-w` For the name of the world you want to process. Default: "world".
+   - `-p` For the path to the world you want to process. Default: current directory.
    - `-r` For the name of the sub-folder (dimension) in the world. Default: "".
+   - `-o` For the path of the folder where the new region folder will be saved to. Default: current directory.
    - **Example 1:** This command will delete all non-vanilla structures (defined up to 1.17) in the overworld of the world "SMP"
 
    ```bash
    python main.py -w "SMP"
    ```
 
-   - **Example 2:** This command will delete all occurances of "Better Mineshaft" and of "Better Stronghold" in the world "My World", in the Nether (DIM-1), using 8 threads.
+   - **Example 2:** This command will delete all occurances of "Better Mineshaft" and of "Better Stronghold" in the world "MyWorld", in the Nether (DIM-1), using 8 threads. The world folder is located in the user's minecraft saves, and the output will be saved to the desktop.
 
    ```bash
-   python main.py -t "Better Mineshaft" "Better Stronghold" -j 8 -w "My World" -r "DIM-1"
+   python main.py -t "Better Mineshaft" "Better Stronghold" -j 8 -w "My World" -r "DIM-1" -p "C:\Users\X\AppData\Roaming\.minecraft\saves\MyWorld" -o "C:\Users\X\Desktop"
    ```
 
    If you are on windows, I recommend using PowerShell.
-4. Let it run. This may take a while, depending on the power of your computer and the size of your world.
-5. Replace the contents of your region folder with the contents of new_region.
-6. Enjoy your now working world 😊
+2. Let it run. This may take a while, depending on the power of your computer and the size of your world.
+3. Replace the contents of your region folder with the contents of new_region.
+4. Enjoy your now working world 😊
+
+</details>
 
 ## Warnings
 
@@ -56,7 +69,7 @@ Clone the repository, then install requirements:
 
 ```bash
 pip install -r requirements.txt
-pip install -r devrequirements.txt
+pip install -r tests/requirements.txt
 ```
 
 #### Linting and style
