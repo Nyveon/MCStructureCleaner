@@ -113,7 +113,7 @@ Contributions are always welcome! See the [issues page](https://github.com/Nyveo
 - 1.15.x: 🟢 Automatically
 - 1.16.x: 🟡 Manually
 - 1.17.x: 🟠 Untested, but should work
-- 1.18.x: 🔴 Untested
+- 1.18.x: 🔴 Not working.
 - 1.19.x: ❔ The bug might be fixed in this version. If anyone has information, please let me know c:
 
 ![MC Structure Cleaner](images/mc-structure-cleaner.png)
