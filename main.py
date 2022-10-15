@@ -39,7 +39,7 @@ HELP_TAG = ("The EXACT structure tag name you want removed "
 HELP_PATH = "The path of the world you wish to process"
 HELP_OUTPUT = "The path of the folder you wish to save the new region files to"
 HELP_REGION = ("The name of the region folder (dimension) "
-               " | Overworld: (blank) | Nether: DIM-1| End: DIM1")
+               " | Overworld: (blank) | Nether: DIM-1 | End: DIM1")
 
 # Configuration
 DEFAULT_PATH = "world"
@@ -121,19 +121,19 @@ if Gooey:
     @Gooey(
         program_name=NAME,
         program_description=DESCRIPTION,
-        header_bg_color="#5b8731",
-        menu=[
-            {
-                "name": "About",
-                "items": [{
+        header_bg_color="#6dd684",
+        default_size=(610, 610),
+        menu=[{
+            "name": "About",
+            "items": [{
                     "type": "AboutDialog",
                     "menuTitle": "About",
                     "name": NAME,
                     "description": DESCRIPTION,
                     "version": VERSION,
                     "website": "https://github.com/Nyveon/MCStructureCleaner",
-                }]
-            },
+            }]
+        },
             {
                 "name": "Help",
                 "items": [{
@@ -143,9 +143,10 @@ if Gooey:
                 }, {
                     "type": "Link",
                     "menuTitle": "Report an issue",
-                    "url": "https://github.com/Nyveon/MCStructureCleaner/issues"
+                    "url":
+                        "https://github.com/Nyveon/MCStructureCleaner/issues"
                 }]
-            }]
+        }]
 
     )
     def get_gui_args() -> Namespace:
