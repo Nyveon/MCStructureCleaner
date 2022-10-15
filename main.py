@@ -24,9 +24,25 @@ try:
 except ImportError:
     Gooey = None
 
+# Information
 NAME = "MC Structure Cleaner"
 VERSION = "1.6"
 DESCRIPTION = f"By: Nyveon\nVersion: {VERSION}"
+HELP_JOBS = ("The number of processes to run. "
+             "Going over your CPU count may will "
+             "slow things down. The default is recommendable")
+HELP_TAG = ("The EXACT structure tag name you want removed "
+            "You can input tags separated by spaces "
+            "(You can use NBTExplorer to find the name) "
+            "Leave blank to remove ALL NON-VANILLA structures")
+HELP_PATH = "The path of the world you wish to process"
+HELP_OUTPUT = "The path of the folder you wish to save the new region files to"
+HELP_REGION = ("The name of the region folder (dimension) "
+               " | Overworld: (blank) | Nether: DIM-1| End: DIM1")
+
+# Configuration
+DEFAULT_PATH = "world"
+DEFAULT_OUTPUT = "./"
 
 # todo: better docstring
 
@@ -54,20 +70,15 @@ def get_default_jobs() -> int:
 def get_cli_args() -> Namespace:
     """Get CLI Arguments"""
     jobs = get_default_jobs()
-    tag_help = ("The EXACT structure tag name you want removed (Use "
-                "NBTExplorer to find the name), default is an empty string "
-                "(for use in purge mode)")
-    jobs_help = f"The number of processes to run (default: {jobs})"
-    path_help = "The path of the world you wish to process (default: 'world')"
-    output_help = "The path where you wish to save the output (default: './'"
-    region_help = ("The name of the region folder (dimension) "
-                   "you wish to process")
+    jobs_help = f"{HELP_JOBS} (default: {jobs})"
+    path_help = f"{HELP_PATH} (default: '{DEFAULT_PATH}')"
+    output_help = f"{HELP_OUTPUT} (default: '{DEFAULT_OUTPUT}')"
 
     parser = ArgumentParser(prog=f"{NAME}\n{DESCRIPTION}")
 
     parser.add_argument("-t", "--tag",
                         type=str,
-                        help=tag_help,
+                        help=HELP_TAG,
                         default="",
                         nargs="*")
     parser.add_argument("-j", "--jobs",
@@ -84,7 +95,7 @@ def get_cli_args() -> Namespace:
                         default="./")
     parser.add_argument("-r", "--region",
                         type=str,
-                        help=region_help,
+                        help=HELP_REGION,
                         default="")
 
     return parser.parse_args()
@@ -98,37 +109,31 @@ if Gooey:
     def get_gui_args() -> Namespace:
         """Get GUI Arguments"""
         jobs = get_default_jobs()
-        tag_help = ("The EXACT structure tag name you want removed (Use "
-                    "NBTExplorer to find the name), default is an empty string"
-                    " (for use in purge mode)")
-        jobs_help = f"The number of processes to run (default: {jobs})"
-        path_help = "The path of the world you wish to process (default: 'world')"
-        output_help = "The path where you wish to save the output (default: './'"
-        region_help = ("The name of the region folder (dimension)"
-                    "you wish to process")
-
         parser = GooeyParser(description=DESCRIPTION)
 
         parser.add_argument("-t", "--tag",
                             type=str,
-                            help=tag_help,
+                            help=HELP_TAG,
                             default="",
                             nargs="*")
         parser.add_argument("-j", "--jobs",
                             type=int,
-                            help=jobs_help,
-                            default=jobs)
+                            help=HELP_JOBS,
+                            default=jobs,
+                            widget="IntegerField")
         parser.add_argument("-p", "--path",
                             type=str,
-                            help=path_help,
-                            default="world")
+                            help=HELP_PATH,
+                            default="./world",
+                            widget="DirChooser")
         parser.add_argument("-o", "--output",
                             type=str,
-                            help=output_help,
-                            default="./")
+                            help=HELP_OUTPUT,
+                            default="./",
+                            widget="DirChooser")
         parser.add_argument("-r", "--region",
                             type=str,
-                            help=region_help,
+                            help=HELP_REGION,
                             default="")
 
         return parser.parse_args()
