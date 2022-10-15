@@ -1,6 +1,6 @@
 """
 MC Structure Cleaner
-Helper function for tests
+Helper functions for tests
 """
 
 import filecmp

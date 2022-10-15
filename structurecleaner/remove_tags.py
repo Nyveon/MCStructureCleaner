@@ -11,6 +11,9 @@ from multiprocessing import Pool
 from pathlib import Path
 from typing import Set, Tuple
 from structurecleaner.constants import VANILLA_STRUCTURES, SEP
+from structurecleaner.errors import (
+    InvalidRegionFileError, InvalidFileNameError,
+    EmptyFileError,)
 
 
 def _remove_tags_region_a(args: Tuple[Set[str], Path, Path, str]) -> int:
@@ -30,15 +33,15 @@ def _remove_tags_region(to_replace: Set[str], src: Path,
     if len(str(src)) > 4:
         if str(src)[-1:-5:-1] != "acm.":
             print(f"{src} is not a valid region file.")
-            return 0
+            raise InvalidRegionFileError
     else:
-        print(f"{src} is not a valid file.")
-        return 0
+        print(f"{src} is not a valid path.")
+        raise InvalidFileNameError
 
     # Check if file isn't empty
     if os.path.getsize(src) == 0:
         print(f"{src} is empty.")
-        return 0
+        raise EmptyFileError
 
     coords = src.name.split(".")
     region = anvil.Region.from_file(str(src.resolve()))
@@ -88,9 +91,7 @@ def _remove_tags_region(to_replace: Set[str], src: Path,
 
     # Output for purge mode (removed non vanilla tags per file)
     if mode == "purge" and len(removed_tags) != 0:
-        print("Non-vanilla tags found:")
-        print(removed_tags)
-        print(SEP)
+        print(f"Non-vanilla tags found:\n{removed_tags}\nSEP")
 
     return count
 
