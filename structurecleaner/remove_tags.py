@@ -5,8 +5,8 @@ Tag removal logic
 
 import time
 import os
-import anvil  # type: ignore
 import itertools as it
+import anvil  # type: ignore
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Set, Tuple
@@ -18,8 +18,8 @@ def _remove_tags_region_a(args: Tuple[Set[str], Path, Path, str]) -> int:
     return _remove_tags_region(*args)
 
 
-def _remove_tags_region(to_replace: Set[str],
-                        src: Path, dst: Path, mode: str) -> int:
+def _remove_tags_region(to_replace: Set[str], src: Path,
+                        dst: Path, mode: str) -> int:
     """Remove tags in to_replace from the src region
     Write changes to dst/src.name"""
     start: float = time.perf_counter()

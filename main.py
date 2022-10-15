@@ -19,8 +19,16 @@ from pathlib import Path
 from multiprocessing import cpu_count
 from structurecleaner.constants import SEP
 from structurecleaner.remove_tags import remove_tags
+try:
+    from gooey import Gooey, GooeyParser  # type: ignore
+except ImportError:
+    Gooey = None
 
+NAME = "MC Structure Cleaner"
 VERSION = "1.6"
+DESCRIPTION = f"By: Nyveon\nVersion: {VERSION}"
+
+# todo: better docstring
 
 
 # Environment
@@ -38,22 +46,24 @@ def setup_environment(new_region: Path) -> bool:
     return True
 
 
-#  CLI
-def get_args() -> Namespace:
-    """Get CLI Arguments"""
-    jobs = cpu_count() // 2
+def get_default_jobs() -> int:
+    """Get default number of jobs"""
+    return cpu_count() // 2
 
-    prog_msg = f"MC Structure cleaner\nBy: Nyveon\nVersion: {VERSION}"
-    tag_help = "The EXACT structure tag name you want removed (Use \
-            NBTExplorer to find the name), default is an empty \
-            string (for use in purge mode)"
+
+def get_cli_args() -> Namespace:
+    """Get CLI Arguments"""
+    jobs = get_default_jobs()
+    tag_help = ("The EXACT structure tag name you want removed (Use "
+                "NBTExplorer to find the name), default is an empty string "
+                "(for use in purge mode)")
     jobs_help = f"The number of processes to run (default: {jobs})"
     path_help = "The path of the world you wish to process (default: 'world')"
     output_help = "The path where you wish to save the output (default: './'"
-    region_help = "The name of the region folder (dimension) \
-            you wish to process (default: "")"
+    region_help = ("The name of the region folder (dimension) "
+                   "you wish to process")
 
-    parser = ArgumentParser(prog=prog_msg)
+    parser = ArgumentParser(prog=f"{NAME}\n{DESCRIPTION}")
 
     parser.add_argument("-t", "--tag",
                         type=str,
@@ -80,6 +90,50 @@ def get_args() -> Namespace:
     return parser.parse_args()
 
 
+# GUI
+if Gooey:
+    @Gooey(
+        program_name=NAME,
+    )
+    def get_gui_args() -> Namespace:
+        """Get GUI Arguments"""
+        jobs = get_default_jobs()
+        tag_help = ("The EXACT structure tag name you want removed (Use "
+                    "NBTExplorer to find the name), default is an empty string"
+                    " (for use in purge mode)")
+        jobs_help = f"The number of processes to run (default: {jobs})"
+        path_help = "The path of the world you wish to process (default: 'world')"
+        output_help = "The path where you wish to save the output (default: './'"
+        region_help = ("The name of the region folder (dimension)"
+                    "you wish to process")
+
+        parser = GooeyParser(description=DESCRIPTION)
+
+        parser.add_argument("-t", "--tag",
+                            type=str,
+                            help=tag_help,
+                            default="",
+                            nargs="*")
+        parser.add_argument("-j", "--jobs",
+                            type=int,
+                            help=jobs_help,
+                            default=jobs)
+        parser.add_argument("-p", "--path",
+                            type=str,
+                            help=path_help,
+                            default="world")
+        parser.add_argument("-o", "--output",
+                            type=str,
+                            help=output_help,
+                            default="./")
+        parser.add_argument("-r", "--region",
+                            type=str,
+                            help=region_help,
+                            default="")
+
+        return parser.parse_args()
+
+
 def process_args(args: Namespace):
     """Process CLI Arguments"""
     return (
@@ -91,10 +145,14 @@ def process_args(args: Namespace):
 
 
 def main() -> None:
-    to_replace, new_region, \
-        world_region, num_processes = process_args(get_args())
+    # CLI or GUI arguments
+    if Gooey:
+        args = get_gui_args()
+    else:
+        args = get_cli_args()
 
-    print(SEP)
+    to_replace, new_region, \
+        world_region, num_processes = process_args(args)
 
     # Force purge mode if no tag is given, otherwise normal.
     mode = "purge" if not to_replace else "normal"
