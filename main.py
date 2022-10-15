@@ -121,7 +121,32 @@ if Gooey:
     @Gooey(
         program_name=NAME,
         program_description=DESCRIPTION,
-        header_bg_color="#5b8731"
+        header_bg_color="#5b8731",
+        menu=[
+            {
+                "name": "About",
+                "items": [{
+                    "type": "AboutDialog",
+                    "menuTitle": "About",
+                    "name": NAME,
+                    "description": DESCRIPTION,
+                    "version": VERSION,
+                    "website": "https://github.com/Nyveon/MCStructureCleaner",
+                }]
+            },
+            {
+                "name": "Help",
+                "items": [{
+                    "type": "Link",
+                    "menuTitle": "Information",
+                    "url": "https://github.com/Nyveon/MCStructureCleaner"
+                }, {
+                    "type": "Link",
+                    "menuTitle": "Report an issue",
+                    "url": "https://github.com/Nyveon/MCStructureCleaner/issues"
+                }]
+            }]
+
     )
     def get_gui_args() -> Namespace:
         """Get GUI Arguments
