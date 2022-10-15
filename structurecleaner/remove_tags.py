@@ -10,7 +10,8 @@ import anvil  # type: ignore
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Set, Tuple
-from structurecleaner.constants import VANILLA_STRUCTURES, SEP
+from structurecleaner.constants import (
+    VANILLA_STRUCTURES, SEP, NEW_DATA_VERSION)
 from structurecleaner.errors import (
     InvalidRegionFileError, InvalidFileNameError,
     EmptyFileError,)
@@ -65,6 +66,9 @@ def _remove_tags_region(to_replace: Set[str], src: Path,
         if region.chunk_location(chunk_x, chunk_z) != (0, 0):
             data = region.chunk_data(chunk_x, chunk_z)
             data_copy = region.chunk_data(chunk_x, chunk_z)
+
+            if int(data["DataVersion"].value) > NEW_DATA_VERSION:
+                raise NotImplementedError("Version 1.18 is not supported yet.")
 
             if hasattr(data["Level"]["Structures"]["Starts"], 'tags'):
                 for tag in data["Level"]["Structures"]["Starts"].tags:
