@@ -27,3 +27,9 @@ VANILLA_STRUCTURES = {
     "swamp_hut",
     "village"
 }
+
+DIMENSIONS = {
+    "region",
+    "DIM1/region",
+    "DIM-1/region"
+}

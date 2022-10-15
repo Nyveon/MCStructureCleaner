@@ -19,6 +19,7 @@ from pathlib import Path
 from multiprocessing import cpu_count
 from structurecleaner.constants import SEP
 from structurecleaner.remove_tags import remove_tags
+from typing import Tuple
 try:
     from gooey import Gooey, GooeyParser  # type: ignore
 except ImportError:
@@ -44,12 +45,18 @@ HELP_REGION = ("The name of the region folder (dimension) "
 DEFAULT_PATH = "world"
 DEFAULT_OUTPUT = "./"
 
-# todo: better docstring
-
 
 # Environment
 def setup_environment(new_region: Path) -> bool:
-    """Try to create new_region folder"""
+    """Try to create new_region folder
+    This is the folder where the new region files will be saved
+
+    Args:
+        new_region (Path): Path to new region folder
+
+    Returns:
+        bool: True if successful, False otherwise
+    """
     if new_region.exists():
         print(f"{new_region.resolve()} exists, this may cause problems")
         proceed = input("Do you want to proceed regardless? [y/N] ")
@@ -63,12 +70,20 @@ def setup_environment(new_region: Path) -> bool:
 
 
 def get_default_jobs() -> int:
-    """Get default number of jobs"""
+    """Get default number of jobs
+
+    Returns:
+        int: The number of CPU cores in the device
+    """
     return cpu_count() // 2
 
 
 def get_cli_args() -> Namespace:
-    """Get CLI Arguments"""
+    """Get CLI Arguments
+
+    Returns:
+        Namespace: The parsed arguments
+    """
     jobs = get_default_jobs()
     jobs_help = f"{HELP_JOBS} (default: {jobs})"
     path_help = f"{HELP_PATH} (default: '{DEFAULT_PATH}')"
@@ -101,15 +116,21 @@ def get_cli_args() -> Namespace:
     return parser.parse_args()
 
 
-# GUI
+# GUI (Only if Gooey is installed)
 if Gooey:
     @Gooey(
         program_name=NAME,
+        program_description=DESCRIPTION,
+        header_bg_color="#5b8731"
     )
     def get_gui_args() -> Namespace:
-        """Get GUI Arguments"""
+        """Get GUI Arguments
+
+        Returns:
+            Namespace: The parsed arguments
+        """
         jobs = get_default_jobs()
-        parser = GooeyParser(description=DESCRIPTION)
+        parser = GooeyParser()
 
         parser.add_argument("-t", "--tag",
                             type=str,
@@ -120,7 +141,11 @@ if Gooey:
                             type=int,
                             help=HELP_JOBS,
                             default=jobs,
-                            widget="IntegerField")
+                            widget="IntegerField",
+                            gooey_options={
+                                'min': 1,
+                                'max': jobs*2
+                            })
         parser.add_argument("-p", "--path",
                             type=str,
                             help=HELP_PATH,
@@ -139,8 +164,19 @@ if Gooey:
         return parser.parse_args()
 
 
-def process_args(args: Namespace):
-    """Process CLI Arguments"""
+def process_args(args: Namespace) -> Tuple[set, Path, Path, int]:
+    """Process CLI or GUI Arguments
+
+    Args:
+        args (Namespace): Parsed CLI or GUI arguments
+
+    Returns:
+        Tuple[set, Path, Path, int]: Processed arguments:
+            1. A set of tags (strings)
+            2. The output path
+            3. The input path
+            4. The job
+    """
     return (
         set(args.tag),
         Path(f"{args.output}/new_region{args.region}"),
@@ -150,12 +186,9 @@ def process_args(args: Namespace):
 
 
 def main() -> None:
+    """The main program"""
     # CLI or GUI arguments
-    if Gooey:
-        args = get_gui_args()
-    else:
-        args = get_cli_args()
-
+    args = get_gui_args() if Gooey else get_cli_args()
     to_replace, new_region, \
         world_region, num_processes = process_args(args)
 

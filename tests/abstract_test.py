@@ -1,30 +1,41 @@
 """
 MC Structure Cleaner
-Tests tag removal logic for 1.15.2 worlds
+Helper function for tests
 """
 
-import pytest
 import filecmp
 from pathlib import Path
-from structurecleaner.remove_tags import remove_tags
-from structurecleaner.constants import VANILLA_STRUCTURES as VS
 from multiprocessing import cpu_count
-from tests.test_helpers import to_file_set
+from structurecleaner.remove_tags import remove_tags
 
 TEST_DIR = "tests/data"
 
-TS = {
-    "repurposed_structures:mineshaft_icy",
-    "repurposed_structures:mineshaft_end"
-}
 
-DIMENSIONS = ["region", "DIM1/region", "DIM-1/region"]
+def to_file_set(path: Path | str) -> set:
+    """Return a set of all files in path
+
+    Args:
+        path (Path | str): The name of a path or a path
+
+    Returns:
+        set: A set of filenames
+    """
+    if isinstance(path, str):
+        path = Path(path)
+    return set(path.glob("*"))
 
 
 def remove_tags_test(version: str, region: str, mode: str,
                      tags: set, tmp_path: Path) -> None:
-    """
-    General test for removing tags
+    """Abstract testing for remove_tags
+    Sets up the directories, runs the command, and then checks equality.
+
+    Args:
+        version (str): The version number ID of the test data
+        region (str): The region name
+        mode (str): Purge or Remove
+        tags (set): Set of tags (strings)
+        tmp_path (Path): The current testing tmp_path
     """
     jobs = cpu_count() // 2
 
@@ -59,21 +70,3 @@ def remove_tags_test(version: str, region: str, mode: str,
         print("\n\n", file, "\n\n")
         assert filecmp.cmp((dst / file.name), file), \
             f"{file.name} is not target"
-
-
-@pytest.mark.parametrize("dimension", DIMENSIONS)
-def test_rt_purge_1_15_2(dimension: str, tmp_path: Path) -> None:
-    """
-    Test purge mode for 1.15.2
-    Expected behaviour: All modded tags are removed
-    """
-    remove_tags_test("1.15.2", dimension, "purge", VS, tmp_path)
-
-
-@pytest.mark.parametrize("dimension", DIMENSIONS)
-def test_rt_remove_1_15_2(dimension: str, tmp_path: Path) -> None:
-    """
-    Test remove mode for 1.15.2
-    Expected behaviour: Only tags in TS are removed
-    """
-    remove_tags_test("1.15.2", "region", "remove", TS, tmp_path)
