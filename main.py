@@ -58,10 +58,14 @@ def setup_environment(new_region: Path) -> bool:
         bool: True if successful, False otherwise
     """
     if new_region.exists():
-        print(f"{new_region.resolve()} exists, this may cause problems")
-        proceed = input("Do you want to proceed regardless? [y/N] ")
-        print(SEP)
-        return proceed.startswith("y")
+        if Gooey:
+            raise FileExistsError(f"{new_region} already exists, please delete"
+                                  " it or choose a different folder.")
+        else:
+            print(f"{new_region.resolve()} exists, this may cause problems")
+            proceed = input("Do you want to proceed regardless? [y/N] ")
+            print(SEP)
+            return proceed.startswith("y")
 
     new_region.mkdir()
     print(f"Saving newly generated region files to {new_region.resolve()}")
@@ -123,6 +127,7 @@ if Gooey:
         program_description=DESCRIPTION,
         header_bg_color="#6dd684",
         default_size=(610, 610),
+        image_dir="./images",
         menu=[{
             "name": "About",
             "items": [{
@@ -232,13 +237,11 @@ def main() -> None:
 
     # Check if world exists
     if not world_region.exists():
-        print(f"Couldn't find {world_region.resolve()}")
-        return None
+        raise FileNotFoundError(f"Couldn't find {world_region.resolve()}")
 
     # Check if output already exists
     if not setup_environment(new_region):
-        print("Aborted, nothing was done")
-        return None
+        raise SystemExit("Aborted, nothing was done")
 
     n_to_process = len(list(world_region.iterdir()))
     remove_tags(to_replace, world_region, new_region, num_processes, mode)
