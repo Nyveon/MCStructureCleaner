@@ -16,9 +16,12 @@ from structurecleaner.errors import (
     EmptyFileError,)
 
 
-def _remove_tags_region_a(args: Tuple[Set[str], Path, Path, str]) -> int:
+def _remove_tags_region_task(args: Tuple[Set[str], Path, Path, str]) -> int:
     """Wrapper for removing tags from a region file"""
-    return _remove_tags_region(*args)
+    try:
+        return _remove_tags_region(*args)
+    except (InvalidRegionFileError, InvalidFileNameError, EmptyFileError):
+        return 0
 
 
 def _remove_tags_region(to_replace: Set[str], src: Path,
@@ -105,7 +108,7 @@ def remove_tags(tags: Set[str],
                    src.iterdir(),
                    it.repeat(dst),
                    it.repeat(mode))
-        count = sum(pool.map(_remove_tags_region_a, data))
+        count = sum(pool.map(_remove_tags_region_task, data))
         end = time.perf_counter()
 
         print(SEP)
