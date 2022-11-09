@@ -10,7 +10,7 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 
 ⚠ This does not work on 1.18.x worlds. ⚠
 
-1. Install [Python 3.x](https://www.python.org/)
+1. Install [Python 3.x](https://www.python.org/) Currently not compatible with Python versions past 3.10
 2. Install the requirements [Matcool's Anvil Parser](https://github.com/matcool/anvil-parser) and [Gooey](https://github.com/chriskiehl/Gooey). This can be done with the following commands:
 
 ```bash
