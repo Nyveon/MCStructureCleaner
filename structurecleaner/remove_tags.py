@@ -25,6 +25,7 @@ from structurecleaner.removal_strategies import (
     PurgeRemovalStrategy,
     ListRemovalStrategy,
 )
+from structurecleaner.version_strategies import OldDataVersion
 
 
 def _remove_tags_region_task(args: Tuple[Set[str], Path, Path, str]) -> int:
@@ -86,26 +87,11 @@ def _remove_tags_region(
 
             if int(data["DataVersion"].value) > NEW_DATA_VERSION:
                 raise NotImplementedError("Version 1.18 is not supported yet.")
+            else:
+                strategy = OldDataVersion(removal_strategy)
 
-            if hasattr(data["Level"]["Structures"]["Starts"], "tags"):
-                for tag in data["Level"]["Structures"]["Starts"].tags:
-                    if removal_strategy.check_tag(tag):
-                        del data_copy["Level"]["Structures"]["Starts"][
-                            tag.name
-                        ]
-                        count += 1
-                        removed_tags.add(tag.name)
+            count += strategy.remove_tags(data, data_copy, removed_tags)
 
-            if hasattr(data["Level"]["Structures"]["References"], "tags"):
-                for tag in data["Level"]["Structures"]["References"].tags:
-                    if removal_strategy.check_tag(tag):
-                        del data_copy["Level"]["Structures"]["References"][
-                            tag.name
-                        ]
-                        count += 1
-                        removed_tags.add(tag.name)
-
-            # Add the modified chunk data to the new region
             new_region.add_chunk(anvil.Chunk(data_copy))
 
     # Save Region
