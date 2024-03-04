@@ -25,7 +25,7 @@ from structurecleaner.removal_strategies import (
     PurgeRemovalStrategy,
     ListRemovalStrategy,
 )
-from structurecleaner.version_strategies import OldDataVersion
+from structurecleaner.version_strategies import OldDataVersion, NewDataVersion
 
 
 def _remove_tags_region_task(args: Tuple[Set[str], Path, Path, str]) -> int:
@@ -86,7 +86,7 @@ def _remove_tags_region(
             data_copy = region.chunk_data(chunk_x, chunk_z)
 
             if int(data["DataVersion"].value) > NEW_DATA_VERSION:
-                raise NotImplementedError("Version 1.18 is not supported yet.")
+                strategy = NewDataVersion(removal_strategy)
             else:
                 strategy = OldDataVersion(removal_strategy)
 

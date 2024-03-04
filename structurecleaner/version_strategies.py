@@ -39,3 +39,26 @@ class OldDataVersion(VersionStrategy):
                     removed_tags.add(tag.name)
 
         return count
+
+
+class NewDataVersion(VersionStrategy):
+    def remove_tags(self, data, data_copy, removed_tags: Set[str]) -> int:
+        count = 0
+
+        if hasattr(data["structures"]["starts"], "tags"):
+            for tag in data["structures"]["starts"].tags:
+                if self.removal_strategy.check_tag(tag):
+                    del data_copy["structures"]["starts"][tag.name]
+                    count += 1
+                    removed_tags.add(tag.name)
+
+        if hasattr(data["structures"]["References"], "tags"):
+            for tag in data["structures"]["References"].tags:
+                if self.removal_strategy.check_tag(tag):
+                    del data_copy["structures"]["References"][
+                        tag.name
+                    ]
+                    count += 1
+                    removed_tags.add(tag.name)
+
+        return count
