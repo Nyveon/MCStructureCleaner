@@ -25,8 +25,9 @@ def to_file_set(path: Path | str) -> set:
     return set(path.glob("*"))
 
 
-def remove_tags_test(version: str, region: str, mode: str,
-                     tags: set, tmp_path: Path) -> None:
+def remove_tags_test(
+    version: str, region: str, mode: str, tags: set, tmp_path: Path
+) -> None:
     """Abstract testing for remove_tags
     Sets up the directories, runs the command, and then checks equality.
 
@@ -68,5 +69,6 @@ def remove_tags_test(version: str, region: str, mode: str,
 
     for file in region_target_files:
         print("\n\n", file, "\n\n")
-        assert filecmp.cmp((dst / file.name), file), \
-            f"{file.name} is not target"
+        assert filecmp.cmp(
+            (dst / file.name), file
+        ), f"{file.name} is not target"

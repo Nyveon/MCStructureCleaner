@@ -20,6 +20,7 @@ from multiprocessing import cpu_count
 from structurecleaner.constants import SEP
 from structurecleaner.remove_tags import remove_tags
 from typing import Tuple
+
 try:
     from gooey import Gooey, GooeyParser  # type: ignore
 except ImportError:
@@ -29,17 +30,23 @@ except ImportError:
 NAME = "MC Structure Cleaner"
 VERSION = "1.6"
 DESCRIPTION = f"By: Nyveon\nVersion: {VERSION}"
-HELP_JOBS = ("The number of processes to run. "
-             "Going over your CPU count may will "
-             "slow things down. The default is recommendable")
-HELP_TAG = ("The EXACT structure tag you want removed. "
-            'Separate tags by spaces. Use "" if the names '
-            'have spaces. '
-            "Leave blank to remove ALL NON-VANILLA structures")
+HELP_JOBS = (
+    "The number of processes to run. "
+    "Going over your CPU count may will "
+    "slow things down. The default is recommendable"
+)
+HELP_TAG = (
+    "The EXACT structure tag you want removed. "
+    'Separate tags by spaces. Use "" if the names '
+    "have spaces. "
+    "Leave blank to remove ALL NON-VANILLA structures"
+)
 HELP_PATH = "The path of the world you wish to process"
 HELP_OUTPUT = "The path of the folder you wish to save the new region files to"
-HELP_REGION = ("The name of the region folder (dimension) "
-               " | Overworld: (blank) | Nether: DIM-1 | End: DIM1")
+HELP_REGION = (
+    "The name of the region folder (dimension) "
+    " | Overworld: (blank) | Nether: DIM-1 | End: DIM1"
+)
 
 # Configuration
 DEFAULT_PATH = "world"
@@ -59,8 +66,10 @@ def setup_environment(new_region: Path) -> bool:
     """
     if new_region.exists():
         if Gooey:
-            raise FileExistsError(f"{new_region} already exists, please delete"
-                                  " it or choose a different folder.")
+            raise FileExistsError(
+                f"{new_region} already exists, please delete"
+                " it or choose a different folder."
+            )
         else:
             print(f"{new_region.resolve()} exists, this may cause problems")
             proceed = input("Do you want to proceed regardless? [y/N] ")
@@ -95,64 +104,62 @@ def get_cli_args() -> Namespace:
 
     parser = ArgumentParser(prog=f"{NAME}\n{DESCRIPTION}")
 
-    parser.add_argument("-t", "--tag",
-                        type=str,
-                        help=HELP_TAG,
-                        default="",
-                        nargs="*")
-    parser.add_argument("-j", "--jobs",
-                        type=int,
-                        help=jobs_help,
-                        default=jobs)
-    parser.add_argument("-p", "--path",
-                        type=str,
-                        help=path_help,
-                        default="world")
-    parser.add_argument("-o", "--output",
-                        type=str,
-                        help=output_help,
-                        default="./")
-    parser.add_argument("-r", "--region",
-                        type=str,
-                        help=HELP_REGION,
-                        default="")
+    parser.add_argument(
+        "-t", "--tag", type=str, help=HELP_TAG, default="", nargs="*"
+    )
+    parser.add_argument("-j", "--jobs", type=int, help=jobs_help, default=jobs)
+    parser.add_argument(
+        "-p", "--path", type=str, help=path_help, default="world"
+    )
+    parser.add_argument(
+        "-o", "--output", type=str, help=output_help, default="./"
+    )
+    parser.add_argument(
+        "-r", "--region", type=str, help=HELP_REGION, default=""
+    )
 
     return parser.parse_args()
 
 
 # GUI (Only if Gooey is installed)
 if Gooey:
+
     @Gooey(
         program_name=NAME,
         program_description=DESCRIPTION,
         header_bg_color="#6dd684",
         default_size=(610, 610),
         image_dir="./images",
-        menu=[{
-            "name": "About",
-            "items": [{
-                    "type": "AboutDialog",
-                    "menuTitle": "About",
-                    "name": NAME,
-                    "description": DESCRIPTION,
-                    "version": VERSION,
-                    "website": "https://github.com/Nyveon/MCStructureCleaner",
-            }]
-        },
+        menu=[
+            {
+                "name": "About",
+                "items": [
+                    {
+                        "type": "AboutDialog",
+                        "menuTitle": "About",
+                        "name": NAME,
+                        "description": DESCRIPTION,
+                        "version": VERSION,
+                        "website": "https://github.com/Nyveon/MCStructureCleaner",
+                    }
+                ],
+            },
             {
                 "name": "Help",
-                "items": [{
-                    "type": "Link",
-                    "menuTitle": "Information",
-                    "url": "https://github.com/Nyveon/MCStructureCleaner"
-                }, {
-                    "type": "Link",
-                    "menuTitle": "Report an issue",
-                    "url":
-                        "https://github.com/Nyveon/MCStructureCleaner/issues"
-                }]
-        }]
-
+                "items": [
+                    {
+                        "type": "Link",
+                        "menuTitle": "Information",
+                        "url": "https://github.com/Nyveon/MCStructureCleaner",
+                    },
+                    {
+                        "type": "Link",
+                        "menuTitle": "Report an issue",
+                        "url": "https://github.com/Nyveon/MCStructureCleaner/issues",
+                    },
+                ],
+            },
+        ],
     )
     def get_gui_args() -> Namespace:
         """Get GUI Arguments
@@ -163,34 +170,37 @@ if Gooey:
         jobs = get_default_jobs()
         parser = GooeyParser()
 
-        parser.add_argument("-t", "--tag",
-                            type=str,
-                            help=HELP_TAG,
-                            default="",
-                            nargs="*")
-        parser.add_argument("-j", "--jobs",
-                            type=int,
-                            help=HELP_JOBS,
-                            default=jobs,
-                            widget="IntegerField",
-                            gooey_options={
-                                'min': 1,
-                                'max': jobs*2
-                            })
-        parser.add_argument("-p", "--path",
-                            type=str,
-                            help=HELP_PATH,
-                            default="./world",
-                            widget="DirChooser")
-        parser.add_argument("-o", "--output",
-                            type=str,
-                            help=HELP_OUTPUT,
-                            default="./",
-                            widget="DirChooser")
-        parser.add_argument("-r", "--region",
-                            type=str,
-                            help=HELP_REGION,
-                            default="")
+        parser.add_argument(
+            "-t", "--tag", type=str, help=HELP_TAG, default="", nargs="*"
+        )
+        parser.add_argument(
+            "-j",
+            "--jobs",
+            type=int,
+            help=HELP_JOBS,
+            default=jobs,
+            widget="IntegerField",
+            gooey_options={"min": 1, "max": jobs * 2},
+        )
+        parser.add_argument(
+            "-p",
+            "--path",
+            type=str,
+            help=HELP_PATH,
+            default="./world",
+            widget="DirChooser",
+        )
+        parser.add_argument(
+            "-o",
+            "--output",
+            type=str,
+            help=HELP_OUTPUT,
+            default="./",
+            widget="DirChooser",
+        )
+        parser.add_argument(
+            "-r", "--region", type=str, help=HELP_REGION, default=""
+        )
 
         return parser.parse_args()
 
@@ -212,7 +222,7 @@ def process_args(args: Namespace) -> Tuple[set, Path, Path, int]:
         set(args.tag),
         Path(f"{args.output}/new_region{args.region}"),
         Path(f"{args.path}/{args.region}/region"),
-        args.jobs
+        args.jobs,
     )
 
 
@@ -220,15 +230,16 @@ def main() -> None:
     """The main program"""
     # CLI or GUI arguments
     args = get_gui_args() if Gooey else get_cli_args()
-    to_replace, new_region, \
-        world_region, num_processes = process_args(args)
+    to_replace, new_region, world_region, num_processes = process_args(args)
 
     # Force purge mode if no tag is given, otherwise normal.
     mode = "purge" if not to_replace else "normal"
     if mode == "purge":
         print("No tag given, will run in purge mode.")
-        print(f"Replacing all non-vanilla structures in \
-            all region files in {world_region}.")
+        print(
+            f"Replacing all non-vanilla structures in \
+            all region files in {world_region}."
+        )
     else:
         print("Tag(s) given, will run in normal mode.")
         print(f"Replacing {to_replace} in all region files in {world_region}.")

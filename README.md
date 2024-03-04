@@ -96,12 +96,20 @@ pip install -r tests/requirements.txt
 
 #### Linting and style
 
-Most standard linters are fine as long as the code is readable, the project files are currently linted with [flake8](https://flake8.pycqa.org/en/latest/).
+The project files are currently formatted with [Black](https://github.com/psf/black). If you send a pull request formatted with Black, most likely no style changes will be made to your code, but feel free to send anything as long as the code is readable and organized.
 
 #### Running tests
 
 - **VSCode**: the testing environment is already configured, simply press the `Run Tests` button added by the [official Python Extension](https://code.visualstudio.com/docs/python/testing).
 - **Command Line**:
+
+Without coverageL
+
+```bash
+pytest -v tests/
+```
+
+With coverage:
 
 ```bash
 pytest -v --cov=. tests/ --cov-report xml:cov.xml

@@ -10,7 +10,7 @@ from tests.abstract_test import TEST_DIR
 
 TS = {
     "repurposed_structures:mineshaft_icy",
-    "repurposed_structures:mineshaft_end"
+    "repurposed_structures:mineshaft_end",
 }
 
 test_data_path = f"{TEST_DIR}/tags_region"

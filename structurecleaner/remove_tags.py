@@ -11,10 +11,15 @@ from multiprocessing import Pool
 from pathlib import Path
 from typing import Set, Tuple
 from structurecleaner.constants import (
-    VANILLA_STRUCTURES, SEP, NEW_DATA_VERSION)
+    VANILLA_STRUCTURES,
+    SEP,
+    NEW_DATA_VERSION,
+)
 from structurecleaner.errors import (
-    InvalidRegionFileError, InvalidFileNameError,
-    EmptyFileError,)
+    InvalidRegionFileError,
+    InvalidFileNameError,
+    EmptyFileError,
+)
 
 
 def _remove_tags_region_task(args: Tuple[Set[str], Path, Path, str]) -> int:
@@ -25,8 +30,9 @@ def _remove_tags_region_task(args: Tuple[Set[str], Path, Path, str]) -> int:
         return 0
 
 
-def _remove_tags_region(to_replace: Set[str], src: Path,
-                        dst: Path, mode: str) -> int:
+def _remove_tags_region(
+    to_replace: Set[str], src: Path, dst: Path, mode: str
+) -> int:
     """Remove tags in to_replace from the src region
     Write changes to dst/src.name"""
     start: float = time.perf_counter()
@@ -54,9 +60,12 @@ def _remove_tags_region(to_replace: Set[str], src: Path,
 
     # Function for checking if a tag is valid
     if mode == "purge":
+
         def check_tag(_tag):
             return _tag.name.lower() not in VANILLA_STRUCTURES
+
     else:
+
         def check_tag(_tag):
             return _tag.name in to_replace
 
@@ -70,19 +79,21 @@ def _remove_tags_region(to_replace: Set[str], src: Path,
             if int(data["DataVersion"].value) > NEW_DATA_VERSION:
                 raise NotImplementedError("Version 1.18 is not supported yet.")
 
-            if hasattr(data["Level"]["Structures"]["Starts"], 'tags'):
+            if hasattr(data["Level"]["Structures"]["Starts"], "tags"):
                 for tag in data["Level"]["Structures"]["Starts"].tags:
                     if check_tag(tag):
-                        del data_copy["Level"][
-                            "Structures"]["Starts"][tag.name]
+                        del data_copy["Level"]["Structures"]["Starts"][
+                            tag.name
+                        ]
                         count += 1
                         removed_tags.add(tag.name)
 
-            if hasattr(data["Level"]["Structures"]["References"], 'tags'):
+            if hasattr(data["Level"]["Structures"]["References"], "tags"):
                 for tag in data["Level"]["Structures"]["References"].tags:
                     if check_tag(tag):
-                        del data_copy["Level"][
-                            "Structures"]["References"][tag.name]
+                        del data_copy["Level"]["Structures"]["References"][
+                            tag.name
+                        ]
                         count += 1
                         removed_tags.add(tag.name)
 
@@ -93,8 +104,10 @@ def _remove_tags_region(to_replace: Set[str], src: Path,
     new_region.save(str((dst / src.name).resolve()))
 
     end: float = time.perf_counter()
-    print(f"File {src}: {count} \
-        instances of tags removed in {end - start:.3f} s")
+    print(
+        f"File {src}: {count} \
+        instances of tags removed in {end - start:.3f} s"
+    )
 
     # Output for purge mode (removed non vanilla tags per file)
     if mode == "purge" and len(removed_tags) != 0:
@@ -103,15 +116,15 @@ def _remove_tags_region(to_replace: Set[str], src: Path,
     return count
 
 
-def remove_tags(tags: Set[str],
-                src: Path, dst: Path, jobs: int, mode: str) -> None:
+def remove_tags(
+    tags: Set[str], src: Path, dst: Path, jobs: int, mode: str
+) -> None:
     """Removes tags from src region files and writes them to dst"""
     with Pool(processes=jobs) as pool:
         start = time.perf_counter()
-        data = zip(it.repeat(tags),
-                   src.iterdir(),
-                   it.repeat(dst),
-                   it.repeat(mode))
+        data = zip(
+            it.repeat(tags), src.iterdir(), it.repeat(dst), it.repeat(mode)
+        )
         count = sum(pool.map(_remove_tags_region_task, data))
         end = time.perf_counter()
 

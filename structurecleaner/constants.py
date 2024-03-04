@@ -25,11 +25,7 @@ VANILLA_STRUCTURES = {
     "shipwreck",
     "stronghold",
     "swamp_hut",
-    "village"
+    "village",
 }
 
-DIMENSIONS = {
-    "region",
-    "DIM1/region",
-    "DIM-1/region"
-}
+DIMENSIONS = {"region", "DIM1/region", "DIM-1/region"}

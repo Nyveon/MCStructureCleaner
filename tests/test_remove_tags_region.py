@@ -8,14 +8,16 @@ import filecmp
 import pytest
 from structurecleaner.remove_tags import _remove_tags_region
 from structurecleaner.errors import (
-    InvalidRegionFileError, InvalidFileNameError,
-    EmptyFileError)
+    InvalidRegionFileError,
+    InvalidFileNameError,
+    EmptyFileError,
+)
 from tests.abstract_test import TEST_DIR
 from pathlib import Path
 
 TS = {
     "repurposed_structures:mineshaft_icy",
-    "repurposed_structures:mineshaft_end"
+    "repurposed_structures:mineshaft_end",
 }
 
 test_data_path = f"{TEST_DIR}/tags_region"
