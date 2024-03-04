@@ -3,7 +3,7 @@ MC Structure Cleaner
 Constants
 """
 
-NEW_DATA_VERSION = 2800  # 1.17.1 vs 1.18
+NEW_DATA_VERSION = 2730  # 1.17.1 vs 1.18
 
 SEP = "-" * 32
 
