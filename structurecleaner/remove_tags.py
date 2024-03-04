@@ -11,7 +11,6 @@ from multiprocessing import Pool
 from pathlib import Path
 from typing import Set, Tuple
 from structurecleaner.constants import (
-    VANILLA_STRUCTURES,
     SEP,
     NEW_DATA_VERSION,
 )
@@ -19,6 +18,12 @@ from structurecleaner.errors import (
     InvalidRegionFileError,
     InvalidFileNameError,
     EmptyFileError,
+)
+
+from structurecleaner.removal_strategies import (
+    RemovalStrategy,
+    PurgeRemovalStrategy,
+    ListRemovalStrategy,
 )
 
 
@@ -31,10 +36,24 @@ def _remove_tags_region_task(args: Tuple[Set[str], Path, Path, str]) -> int:
 
 
 def _remove_tags_region(
-    to_replace: Set[str], src: Path, dst: Path, mode: str
+    removal_strategy: RemovalStrategy, src: Path, dst: Path
 ) -> int:
     """Remove tags in to_replace from the src region
-    Write changes to dst/src.name"""
+
+    Args:
+        removal_strategy (RemovalStrategy): The strategy to use (Purge, List)
+        src (Path): The source region file
+        dst (Path): Where changes are written to
+
+    Raises:
+        InvalidRegionFileError: If the file is not a valid region file
+        InvalidFileNameError: If the file is not a valid path
+        EmptyFileError: If the file is empty
+        NotImplementedError: If the file is a newer version than 1.17
+
+    Returns:
+        int: The number of times any tag was removed
+    """
     start: float = time.perf_counter()
     count: int = 0
 
@@ -58,17 +77,6 @@ def _remove_tags_region(
     new_region = anvil.EmptyRegion(int(coords[1]), int(coords[2]))
     removed_tags = set()
 
-    # Function for checking if a tag is valid
-    if mode == "purge":
-
-        def check_tag(_tag):
-            return _tag.name.lower() not in VANILLA_STRUCTURES
-
-    else:
-
-        def check_tag(_tag):
-            return _tag.name in to_replace
-
     # Check chunks
     for chunk_x, chunk_z in it.product(range(32), repeat=2):
         # Chunk Exists
@@ -81,7 +89,7 @@ def _remove_tags_region(
 
             if hasattr(data["Level"]["Structures"]["Starts"], "tags"):
                 for tag in data["Level"]["Structures"]["Starts"].tags:
-                    if check_tag(tag):
+                    if removal_strategy.check_tag(tag):
                         del data_copy["Level"]["Structures"]["Starts"][
                             tag.name
                         ]
@@ -90,7 +98,7 @@ def _remove_tags_region(
 
             if hasattr(data["Level"]["Structures"]["References"], "tags"):
                 for tag in data["Level"]["Structures"]["References"].tags:
-                    if check_tag(tag):
+                    if removal_strategy.check_tag(tag):
                         del data_copy["Level"]["Structures"]["References"][
                             tag.name
                         ]
@@ -109,9 +117,7 @@ def _remove_tags_region(
         instances of tags removed in {end - start:.3f} s"
     )
 
-    # Output for purge mode (removed non vanilla tags per file)
-    if mode == "purge" and len(removed_tags) != 0:
-        print(f"Non-vanilla tags found:\n{removed_tags}\n{SEP}")
+    removal_strategy.print_find(removed_tags)
 
     return count
 
@@ -119,20 +125,26 @@ def _remove_tags_region(
 def remove_tags(
     tags: Set[str], src: Path, dst: Path, jobs: int, mode: str
 ) -> None:
-    """Removes tags from src region files and writes them to dst"""
+    """Removes tags from src region files and writes them to dst
+
+    Args:
+        tags (Set[str]): Tags to be removed
+        src (Path): The source region files
+        dst (Path): The destination folder
+        jobs (int): Number of processes to use
+        mode (str): Purge or remove strategy
+    """
+    if mode == "purge":
+        removal_strategy = PurgeRemovalStrategy()
+    else:
+        removal_strategy = ListRemovalStrategy(tags)
+
     with Pool(processes=jobs) as pool:
         start = time.perf_counter()
-        data = zip(
-            it.repeat(tags), src.iterdir(), it.repeat(dst), it.repeat(mode)
-        )
+        data = zip(it.repeat(removal_strategy), src.iterdir(), it.repeat(dst))
         count = sum(pool.map(_remove_tags_region_task, data))
         end = time.perf_counter()
 
         print(SEP)
-
-        if mode == "purge":
-            print(f"Done!\nRemoved {count} instances of non-vanilla tags")
-        else:
-            print(f"Done!\nRemoved {count} instances of tags: {tags}")
-
+        removal_strategy.print_done(count)
         print(f"Took {end - start:.3f} seconds")
