@@ -10,15 +10,15 @@ Fixes errors such as `Unknown structure start: <missing structure>`, `Failed to 
 
 ⚠ This does not work on 1.18.x worlds. ⚠
 
-1. Install [Python 3.x](https://www.python.org/) Currently not compatible with Python versions past 3.10
-2. Install the requirements [Matcool's Anvil Parser](https://github.com/matcool/anvil-parser) and [Gooey](https://github.com/chriskiehl/Gooey). This can be done with the following commands:
+1. Install [Python 3.x](https://www.python.org/). Currently only tested on python 3.12.x (latest at the time of writing this).
+2. Install the requirements [0xTiger's Fork of Matcool's Anvil Parser](https://github.com/0xTiger/anvil-parser) and [Gooey](https://github.com/chriskiehl/Gooey). This can be done with the following commands:
 
 ```bash
-pip install anvil-parser
+pip install git+https://github.com/0xTiger/anvil-parser
 pip install Gooey
 ```
-   
-3. Download the latest release (*MCStructureCleaner_v16.zip*) from the [releases page](https://github.com/Nyveon/MCStructureCleaner/releases) and extract it.
+
+3. Download the latest release (_MCStructureCleaner_v16.zip_) from the [releases page](https://github.com/Nyveon/MCStructureCleaner/releases) and extract it.
 
 ## How to Use (Instructions)
 
@@ -34,7 +34,7 @@ pip install Gooey
    3. `path`: The path to the world folder. (The whole folder, not just the `region` folder)
    4. `output`: The path to the output folder. This is where the cleaned `new_region` will be saved. If you leave this blank, the cleaned world will be saved in the same folder as MCStructureCleaner.
    5. `region`: The dimension you want to clean. If you leave this **blank** it will clean the overworld. `DIM-1` is the nether, `DIM1` is the end.
-5. *For example, this input will delete all occurances of "Better Mineshaft" and of "Better Stronghold" in the world "MyWorld", in the Nether (DIM-1), using 8 threads. The world folder is located in the user's minecraft saves, and the output will be saved to the desktop.*
+5. _For example, this input will delete all occurances of "Better Mineshaft" and of "Better Stronghold" in the world "MyWorld", in the Nether (DIM-1), using 8 threads. The world folder is located in the user's minecraft saves, and the output will be saved to the desktop._
 
 ![MC Structure Cleaner GUI](images/screenshot2.png)
 
@@ -49,6 +49,7 @@ pip install Gooey
   <summary>Only recommended if the GUI does not work on your device</summary>
 
 1. Run main.py with any of the following parameters. I recommend using [NBTExplorer](https://github.com/jaquadro/NBTExplorer) to find the name, or just letting the program fix all non-vanilla names by not inputting any tag.
+
    - `-h` For help on command line arguments.
    - `-t` For the tag you want removed, in quotes. Leave empty if you wish to remove ALL NON-VANILLA TAGS.
    - `-j` For the number of threads you want to run it on. Default: 2 x CPU logical processors.
@@ -69,6 +70,7 @@ pip install Gooey
    ```
 
    If you are on windows, I recommend using PowerShell.
+
 2. Let it run. This may take a while, depending on the power of your computer and the size of your world.
 3. Replace the contents of your region folder with the contents of new_region.
 4. Enjoy your now working world 😊
