@@ -24,7 +24,13 @@ class RemovalStrategy(ABC):
 
 class PurgeRemovalStrategy(RemovalStrategy):
     def check_tag(self, tag: nbt.TAG) -> bool:
-        return tag.name.lower() not in VANILLA_STRUCTURES
+        if tag.name.lower() in VANILLA_STRUCTURES:
+            return False
+
+        if tag.name.lower().startswith("minecraft:"):
+            return False
+
+        return True
 
     def print_find(self, removed_tags: Set[str]) -> None:
         print(f"Found {len(removed_tags)} non-vanilla tags: {removed_tags}")
