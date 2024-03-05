@@ -44,12 +44,29 @@ class PurgeRemovalStrategy(RemovalStrategy):
 
 class ListRemovalStrategy(RemovalStrategy):
     to_replace: Set[str]
+    to_replace_specific: Set[str]
+    to_replace_wildcard: Set[str]
 
     def __init__(self, to_replace: Set[str]):
         self.to_replace = to_replace
+        self.to_replace_specific = set()
+        self.to_replace_wildcard = set()
+
+        for tag in to_replace:
+            if tag.endswith("*"):
+                self.to_replace_wildcard.add(tag)
+            else:
+                self.to_replace_specific.add(tag)
 
     def check_tag(self, tag: nbt.TAG) -> bool:
-        return tag.name in self.to_replace
+        if tag.name in self.to_replace_specific:
+            return True
+
+        for wildcard in self.to_replace_wildcard:
+            if tag.name.startswith(wildcard[:-1]):
+                return True
+
+        return False
 
     def print_find(self, removed_tags: Set[str]) -> None:
         return
