@@ -28,18 +28,19 @@ except ImportError:
 
 # Information
 NAME = "MC Structure Cleaner"
-VERSION = "1.6"
+VERSION = "1.7"
 DESCRIPTION = f"By: Nyveon\nVersion: {VERSION}"
 HELP_JOBS = (
     "The number of processes to run. "
-    "Going over your CPU count may will "
+    "Going over your CPU count may "
     "slow things down. The default is recommendable"
 )
 HELP_TAG = (
-    "The EXACT structure tag you want removed. "
-    'Separate tags by spaces. Use "" if the names '
-    "have spaces. "
-    "Leave blank to remove ALL NON-VANILLA structures"
+    "You can leave this blank to remove all non-vanilla structures. \n"
+    "Or you can write a list of: \n"
+    "- The exact structure tag you want removed. \n"
+    "- A (*) as a wildcard for a prefix (see github) \n"
+    "Separate tags by spaces. Use \"\" if the names have space characters. "
 )
 HELP_PATH = "The path of the world you wish to process"
 HELP_OUTPUT = "The path of the folder you wish to save the new region files to"
