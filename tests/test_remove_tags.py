@@ -11,7 +11,7 @@ from tests.abstract_test import remove_tags_test
 
 TS = {
     "repurposed_structures:mineshaft_icy",
-    "repurposed_structures:mineshaft_end"
+    "repurposed_structures:mineshaft_end",
 }
 
 
