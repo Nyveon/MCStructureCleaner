@@ -19,6 +19,7 @@ Minecraft utility designed to repair worlds affected by the [[MC-194811] Missing
 
 ```bash
 pip install git+https://github.com/Nyveon/anvil-parser
+pip install six
 pip install Gooey
 ```
 
